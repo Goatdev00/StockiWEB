@@ -1,0 +1,90 @@
+<!-- Archivo: /auth.html -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ingresa o crea tu cuenta — Stocki</title>
+  <meta name="description" content="Ingresa a tu cuenta de Stocki o regístrate para comprar y vender en toda Colombia." />
+  <link rel="icon" type="image/svg+xml" href="./assets/favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./css/variables.css" />
+  <link rel="stylesheet" href="./css/base.css" />
+  <link rel="stylesheet" href="./css/components.css" />
+  <link rel="stylesheet" href="./css/pages/auth.css" />
+</head>
+<body>
+  <header class="header" id="app-header"></header>
+
+  <main class="page-main">
+    <div class="container">
+      <section class="auth" aria-label="Acceso a tu cuenta">
+        <div class="card auth__card">
+          <h1 class="auth__title">Bienvenido a Stocki</h1>
+          <p class="auth__subtitle">Compra seguro y vende tus productos en toda Colombia</p>
+
+          <div class="tabs" role="tablist" aria-label="Ingreso o registro">
+            <button class="tabs__tab tabs__tab--active" type="button" id="tab-login"
+                    role="tab" aria-selected="true" aria-controls="login-form">Ingresa</button>
+            <button class="tabs__tab" type="button" id="tab-register"
+                    role="tab" aria-selected="false" aria-controls="register-form">Crea tu cuenta</button>
+          </div>
+
+          <p class="auth__notice" id="auth-notice" role="status" hidden></p>
+
+          <form class="form" id="login-form" role="tabpanel" aria-labelledby="tab-login" novalidate>
+            <div class="form-field">
+              <label class="form-field__label" for="login-email">Correo electrónico</label>
+              <input class="form-field__input" id="login-email" name="email" type="email"
+                     autocomplete="email" required />
+              <p class="form-field__error" id="login-email-error" hidden></p>
+            </div>
+            <div class="form-field">
+              <label class="form-field__label" for="login-password">Contraseña</label>
+              <input class="form-field__input" id="login-password" name="password" type="password"
+                     autocomplete="current-password" required />
+              <p class="form-field__error" id="login-password-error" hidden></p>
+            </div>
+            <button class="btn btn--primary btn--block" type="submit" id="login-submit">Ingresar</button>
+            <p class="auth__switch">¿No tienes cuenta?
+              <button class="auth__switch-button" type="button" data-switch="register">Crea tu cuenta gratis</button>
+            </p>
+          </form>
+
+          <form class="form" id="register-form" role="tabpanel" aria-labelledby="tab-register" hidden novalidate>
+            <div class="form-field">
+              <label class="form-field__label" for="register-name">Nombre completo</label>
+              <input class="form-field__input" id="register-name" name="fullName" type="text"
+                     autocomplete="name" required />
+              <p class="form-field__error" id="register-name-error" hidden></p>
+            </div>
+            <div class="form-field">
+              <label class="form-field__label" for="register-email">Correo electrónico</label>
+              <input class="form-field__input" id="register-email" name="email" type="email"
+                     autocomplete="email" required />
+              <p class="form-field__error" id="register-email-error" hidden></p>
+            </div>
+            <div class="form-field">
+              <label class="form-field__label" for="register-password">Contraseña</label>
+              <input class="form-field__input" id="register-password" name="password" type="password"
+                     autocomplete="new-password" minlength="6" required />
+              <p class="form-field__hint">Mínimo 6 caracteres.</p>
+              <p class="form-field__error" id="register-password-error" hidden></p>
+            </div>
+            <button class="btn btn--primary btn--block" type="submit" id="register-submit">Crear cuenta</button>
+            <p class="auth__switch">¿Ya tienes cuenta?
+              <button class="auth__switch-button" type="button" data-switch="login">Ingresa</button>
+            </p>
+          </form>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="footer" id="app-footer"></footer>
+
+  <script type="module" src="./js/pages/auth.js"></script>
+</body>
+</html>

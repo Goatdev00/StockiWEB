@@ -1,0 +1,71 @@
+/* Archivo: /css/pages/home.css — Estilos específicos de la portada.
+   El hero replica los banners oscuros redondeados de las capturas de
+   referencia; la franja promocional, el aviso blanco bajo el banner. */
+
+.hero {
+  background-color: var(--color-banner-oscuro);
+  border-radius: var(--radio-tarjeta);
+  color: var(--color-superficie);
+  padding: 36px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.hero__title {
+  font-size: 1.6rem;
+  font-weight: 700;
+  max-width: 560px;
+}
+
+.hero__subtitle {
+  font-size: 0.95rem;
+  opacity: 0.88;
+  max-width: 480px;
+}
+
+.hero__cta {
+  margin-top: 8px;
+  background-color: var(--color-primario);
+  color: var(--color-texto);
+}
+
+.hero__cta:hover {
+  background-color: var(--color-primario-oscuro);
+}
+
+@media (min-width: 768px) {
+  .hero {
+    padding: 52px 44px;
+  }
+
+  .hero__title {
+    font-size: 2.1rem;
+  }
+}
+
+.promo-strip {
+  background-color: var(--color-superficie);
+  border-radius: var(--radio-borde);
+  box-shadow: var(--sombra-tarjeta);
+  text-align: center;
+  font-size: 0.9rem;
+  padding: 10px 16px;
+  margin: 14px 0 24px;
+}
+
+.promo-strip__highlight {
+  color: var(--color-exito);
+  font-weight: 700;
+}
+
+.home-section {
+  margin-bottom: 32px;
+}
+
+.home-section__title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin-bottom: 14px;
+}

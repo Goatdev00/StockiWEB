@@ -1,0 +1,10 @@
+# Archivo: /supabase/config.toml
+# Configuración mínima para la CLI de Supabase.
+# Los webhooks de pago deben ser públicos: las pasarelas no envían JWT de Supabase.
+project_id = "stocki"
+
+[functions.payments-webhook-bold]
+verify_jwt = false
+
+[functions.payments-webhook-mp]
+verify_jwt = false

@@ -1,0 +1,169 @@
+/* Archivo: /css/pages/admin.css
+   Estilos específicos del panel de administración: tarjetas de resumen,
+   barras de herramientas de cada pestaña, selects compactos en tablas y
+   listas de filas redondeadas/delineadas para el detalle de órdenes
+   (siguiendo las listas de las capturas de referencia). */
+
+/* ---------- Tarjetas de resumen ---------- */
+.admin-summary {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+@media (min-width: 768px) {
+  .admin-summary {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+  }
+}
+
+.admin-summary__card {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 16px 20px;
+}
+
+.admin-summary__value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+/* Los montos en COP son largos: se reduce un poco para que no desborden */
+.admin-summary__value--money {
+  font-size: 1.15rem;
+  padding-top: 5px;
+}
+
+.admin-summary__label {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--color-texto-secundario);
+}
+
+/* ---------- Paneles y barra de herramientas ---------- */
+.admin-panel {
+  margin-bottom: 24px;
+}
+
+.admin-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.admin-toolbar__title {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.admin-toolbar__filter {
+  flex: 1 1 220px;
+  max-width: 340px;
+}
+
+.admin-note {
+  font-size: 0.8rem;
+  color: var(--color-texto-secundario);
+  background-color: var(--color-fondo);
+  border-radius: var(--radio-borde);
+  padding: 8px 12px;
+  margin-bottom: 14px;
+}
+
+/* ---------- Controles dentro de tablas ---------- */
+.admin-inline-select {
+  width: auto;
+  padding: 6px 10px;
+  font-size: 0.82rem;
+}
+
+.admin-actions {
+  display: flex;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.admin-nowrap {
+  white-space: nowrap;
+}
+
+.admin-product-title {
+  min-width: 180px;
+  font-weight: 500;
+}
+
+.admin-slug {
+  font-size: 0.8rem;
+  color: var(--color-texto-secundario);
+  background-color: var(--color-fondo);
+  border-radius: 6px;
+  padding: 2px 8px;
+}
+
+/* ---------- Listas de filas redondeadas (modal de detalle) ---------- */
+.admin-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Borde sutil con el token global de bordes, como en la referencia */
+.admin-rows__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio-borde);
+  padding: 9px 12px;
+  font-size: 0.86rem;
+}
+
+.admin-rows__label {
+  color: var(--color-texto-secundario);
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+.admin-rows__value {
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+.admin-rows__strong {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* ---------- Modal de detalle de orden ---------- */
+.admin-order-detail__subtitle {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin: 16px 0 8px;
+}
+
+.admin-order-detail__total {
+  text-align: right;
+  font-size: 1rem;
+  margin-top: 10px;
+}
+
+.admin-order-detail__empty {
+  color: var(--color-texto-secundario);
+  font-size: 0.85rem;
+}
+
+/* ---------- Acciones de formularios en modal ---------- */
+.admin-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 6px;
+}

@@ -1,0 +1,56 @@
+<!-- Archivo: /search.html -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Buscar productos — Stocki</title>
+  <meta name="description" content="Busca y filtra productos por categoría y precio en Stocki, el marketplace con envíos en toda Colombia." />
+  <link rel="icon" type="image/svg+xml" href="./assets/favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./css/variables.css" />
+  <link rel="stylesheet" href="./css/base.css" />
+  <link rel="stylesheet" href="./css/components.css" />
+  <link rel="stylesheet" href="./css/pages/search.css" />
+</head>
+<body>
+  <header class="header" id="app-header"></header>
+
+  <main class="page-main">
+    <div class="container">
+      <h1 class="page-title" id="results-heading">Resultados</h1>
+
+      <section class="search-toolbar" aria-label="Filtros de búsqueda">
+        <div class="search-toolbar__field">
+          <label class="form-field__label" for="category-filter">Categoría</label>
+          <select class="form-field__select" id="category-filter">
+            <option value="">Todas</option>
+          </select>
+        </div>
+        <div class="search-toolbar__field">
+          <label class="form-field__label" for="sort-filter">Ordenar por</label>
+          <select class="form-field__select" id="sort-filter">
+            <option value="recent">Más recientes</option>
+            <option value="price_asc">Menor precio</option>
+            <option value="price_desc">Mayor precio</option>
+          </select>
+        </div>
+      </section>
+
+      <section id="results-container" aria-label="Resultados de búsqueda" aria-live="polite"></section>
+
+      <!-- Paginación: oculto hasta que haya más resultados que los ya cargados.
+           Estilo inline mínimo porque css/pages/search.css queda fuera de este cambio. -->
+      <div id="load-more" hidden style="text-align: center; margin-top: 24px;">
+        <button class="btn btn--secondary" id="load-more-button" type="button">Ver más resultados</button>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer" id="app-footer"></footer>
+
+  <script type="module" src="./js/pages/search.js"></script>
+</body>
+</html>

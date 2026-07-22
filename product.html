@@ -1,0 +1,36 @@
+<!-- Archivo: /product.html -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Producto — Stocki</title>
+  <meta name="description" content="Detalle de producto en Stocki: fotos, precio, stock y compra segura con envíos en toda Colombia." />
+  <link rel="icon" type="image/svg+xml" href="./assets/favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./css/variables.css" />
+  <link rel="stylesheet" href="./css/base.css" />
+  <link rel="stylesheet" href="./css/components.css" />
+  <link rel="stylesheet" href="./css/pages/product.css" />
+</head>
+<body>
+  <header class="header" id="app-header"></header>
+
+  <main class="page-main">
+    <div class="container">
+      <div id="product-container" aria-live="polite"></div>
+
+      <section class="related-section" id="related-section" aria-label="Productos relacionados" hidden>
+        <h2 class="related-section__title">Productos relacionados</h2>
+        <div id="related-container"></div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="footer" id="app-footer"></footer>
+
+  <script type="module" src="./js/pages/product.js"></script>
+</body>
+</html>

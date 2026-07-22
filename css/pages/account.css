@@ -1,0 +1,161 @@
+/* Archivo: /css/pages/account.css — Página de cuenta: pestañas por hash,
+   perfil, tarjetas de compras con filas redondeadas/delineadas (estilo de
+   las listas blancas de las capturas de referencia) y sección de vendedor. */
+
+/* Los paneles se muestran/ocultan con el atributo hidden; esta regla evita
+   que cualquier display de un ancestro/clase lo anule. */
+.account-panel[hidden] {
+  display: none;
+}
+
+/* ---------- Perfil ---------- */
+.account-profile {
+  max-width: 560px;
+}
+
+.account-profile__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* Badges de rol (los badge--<estado> de components.css son de órdenes) */
+.badge--role-buyer {
+  background-color: var(--color-fondo);
+  color: var(--color-texto-secundario);
+}
+
+.badge--role-seller {
+  background-color: var(--color-exito-suave);
+  color: var(--color-exito);
+}
+
+.badge--role-admin {
+  background-color: var(--color-accion-suave);
+  color: var(--color-accion);
+}
+
+/* ---------- Compras ---------- */
+.account-orders {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-width: 720px;
+}
+
+.order-card {
+  background-color: var(--color-superficie);
+  border-radius: var(--radio-tarjeta);
+  box-shadow: var(--sombra-tarjeta);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.order-card__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.order-card__date {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.order-card__gateway {
+  font-size: 0.8rem;
+  color: var(--color-texto-secundario);
+}
+
+.order-card__items {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Filas redondeadas y delineadas, como las listas de la referencia */
+.order-card__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio-borde);
+  padding: 10px 12px;
+  font-size: 0.88rem;
+}
+
+.order-card__item-subtotal {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.order-card__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid var(--color-fondo);
+  padding-top: 10px;
+}
+
+.order-card__total-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-texto-secundario);
+}
+
+.order-card__total {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.order-card__link {
+  align-self: flex-start;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+/* ---------- Vender ---------- */
+.sell-card {
+  max-width: 560px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.sell-card .card__title {
+  margin-bottom: 0;
+}
+
+.sell-card__text {
+  font-size: 0.92rem;
+  color: var(--color-texto-secundario);
+}
+
+.sell-card__benefits {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.sell-card__benefit {
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio-borde);
+  padding: 10px 12px;
+  font-size: 0.88rem;
+  font-weight: 500;
+}
+
+@media (min-width: 768px) {
+  .order-card {
+    padding: 20px;
+  }
+}

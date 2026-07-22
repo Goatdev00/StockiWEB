@@ -1,0 +1,105 @@
+<!-- Archivo: /admin.html -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Panel de administración — Stocki</title>
+  <meta name="description" content="Panel de administración de Stocki: usuarios, categorías, productos y órdenes." />
+  <link rel="icon" type="image/svg+xml" href="./assets/favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./css/variables.css" />
+  <link rel="stylesheet" href="./css/base.css" />
+  <link rel="stylesheet" href="./css/components.css" />
+  <link rel="stylesheet" href="./css/pages/admin.css" />
+</head>
+<body>
+  <header class="header" id="app-header"></header>
+
+  <main class="page-main">
+    <div class="container">
+      <h1 class="page-title">Panel de administración</h1>
+
+      <section class="admin-summary" aria-label="Resumen general">
+        <article class="card admin-summary__card">
+          <p class="admin-summary__value" id="summary-users">—</p>
+          <p class="admin-summary__label">Usuarios</p>
+        </article>
+        <article class="card admin-summary__card">
+          <p class="admin-summary__value" id="summary-products">—</p>
+          <p class="admin-summary__label">Productos</p>
+        </article>
+        <article class="card admin-summary__card">
+          <p class="admin-summary__value" id="summary-orders">—</p>
+          <p class="admin-summary__label">Órdenes</p>
+        </article>
+        <article class="card admin-summary__card">
+          <p class="admin-summary__value admin-summary__value--money" id="summary-sales">—</p>
+          <p class="admin-summary__label">Ventas confirmadas</p>
+        </article>
+      </section>
+
+      <div class="tabs" role="tablist" aria-label="Secciones de administración">
+        <button class="tabs__tab tabs__tab--active" id="tab-usuarios" type="button" role="tab"
+                aria-selected="true" aria-controls="panel-usuarios" data-tab="usuarios">Usuarios</button>
+        <button class="tabs__tab" id="tab-categorias" type="button" role="tab"
+                aria-selected="false" aria-controls="panel-categorias" data-tab="categorias">Categorías</button>
+        <button class="tabs__tab" id="tab-productos" type="button" role="tab"
+                aria-selected="false" aria-controls="panel-productos" data-tab="productos">Productos</button>
+        <button class="tabs__tab" id="tab-ordenes" type="button" role="tab"
+                aria-selected="false" aria-controls="panel-ordenes" data-tab="ordenes">Órdenes</button>
+      </div>
+
+      <section class="card admin-panel" id="panel-usuarios" role="tabpanel" aria-labelledby="tab-usuarios">
+        <h2 class="card__title">Usuarios registrados</h2>
+        <div id="users-table"></div>
+      </section>
+
+      <section class="card admin-panel" id="panel-categorias" role="tabpanel" aria-labelledby="tab-categorias" hidden>
+        <div class="admin-toolbar">
+          <h2 class="admin-toolbar__title">Categorías</h2>
+          <button class="btn btn--primary btn--small" id="new-category-button" type="button">Nueva categoría</button>
+        </div>
+        <div id="categories-table"></div>
+      </section>
+
+      <section class="card admin-panel" id="panel-productos" role="tabpanel" aria-labelledby="tab-productos" hidden>
+        <div class="admin-toolbar">
+          <h2 class="admin-toolbar__title">Productos</h2>
+          <div class="form-field admin-toolbar__filter">
+            <label class="visually-hidden" for="products-filter">Filtrar productos por texto</label>
+            <input class="form-field__input" id="products-filter" type="search"
+                   placeholder="Filtrar por título o vendedor…" autocomplete="off" />
+          </div>
+        </div>
+        <div id="products-table"></div>
+      </section>
+
+      <section class="card admin-panel" id="panel-ordenes" role="tabpanel" aria-labelledby="tab-ordenes" hidden>
+        <div class="admin-toolbar">
+          <h2 class="admin-toolbar__title">Órdenes</h2>
+          <div class="form-field admin-toolbar__filter">
+            <label class="visually-hidden" for="orders-filter">Filtrar órdenes por estado</label>
+            <select class="form-field__select" id="orders-filter">
+              <option value="">Todos los estados</option>
+              <option value="pendiente">Pendiente de pago</option>
+              <option value="pagada">Pagada</option>
+              <option value="enviada">Enviada</option>
+              <option value="entregada">Entregada</option>
+              <option value="cancelada">Cancelada</option>
+            </select>
+          </div>
+        </div>
+        <p class="admin-note">El estado «pagada» solo lo asigna el webhook de pago; desde aquí gestionas la logística posterior y las cancelaciones.</p>
+        <div id="orders-table"></div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="footer" id="app-footer"></footer>
+
+  <script type="module" src="./js/pages/admin.js"></script>
+</body>
+</html>

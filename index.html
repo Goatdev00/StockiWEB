@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Stocki — Compra y vende en Colombia</title>
+  <meta name="description" content="Stocki: el marketplace donde compras y vendes con envíos en toda Colombia." />
+  <link rel="icon" type="image/svg+xml" href="./assets/favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./css/variables.css" />
+  <link rel="stylesheet" href="./css/base.css" />
+  <link rel="stylesheet" href="./css/components.css" />
+  <link rel="stylesheet" href="./css/pages/home.css" />
+</head>
+<body>
+  <header class="header" id="app-header"></header>
+
+  <main class="page-main">
+    <div class="container">
+      <section class="hero" aria-label="Bienvenida">
+        <h1 class="hero__title">Todo lo que buscas, con envío a toda Colombia</h1>
+        <p class="hero__subtitle">Compra seguro con Bold o MercadoPago, o activa tu perfil de vendedor y publica tus productos hoy mismo.</p>
+        <a class="btn hero__cta" href="./search.html">Explorar productos</a>
+      </section>
+
+      <p class="promo-strip">
+        <span class="promo-strip__highlight">Envíos gratis</span> en productos seleccionados · pagos seguros con Bold y MercadoPago
+      </p>
+
+      <section class="home-section" aria-label="Productos destacados">
+        <h2 class="home-section__title">Novedades</h2>
+        <div id="products-container"></div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="footer" id="app-footer"></footer>
+
+  <script type="module" src="./js/pages/home.js"></script>
+</body>
+</html>

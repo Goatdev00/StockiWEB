@@ -1,0 +1,74 @@
+<!-- Archivo: /account.html -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mi cuenta — Stocki</title>
+  <meta name="description" content="Administra tu perfil, revisa tus compras y activa tu perfil de vendedor en Stocki." />
+  <link rel="icon" type="image/svg+xml" href="./assets/favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./css/variables.css" />
+  <link rel="stylesheet" href="./css/base.css" />
+  <link rel="stylesheet" href="./css/components.css" />
+  <link rel="stylesheet" href="./css/pages/account.css" />
+</head>
+<body>
+  <header class="header" id="app-header"></header>
+
+  <main class="page-main">
+    <div class="container">
+      <h1 class="page-title">Mi cuenta</h1>
+
+      <nav class="tabs" aria-label="Secciones de tu cuenta">
+        <a class="tabs__tab" id="tab-perfil" href="#perfil">Mi perfil</a>
+        <a class="tabs__tab" id="tab-compras" href="#compras">Mis compras</a>
+        <a class="tabs__tab" id="tab-vender" href="#vender">Vender</a>
+      </nav>
+
+      <section class="account-panel" id="panel-perfil" aria-labelledby="tab-perfil" hidden>
+        <div class="card account-profile">
+          <div class="account-profile__header">
+            <h2 class="card__title">Datos personales</h2>
+            <span id="profile-role"></span>
+          </div>
+          <form class="form" id="profile-form" novalidate>
+            <div class="form-field">
+              <label class="form-field__label" for="profile-name">Nombre completo</label>
+              <input class="form-field__input" id="profile-name" name="fullName" type="text"
+                     autocomplete="name" required />
+              <p class="form-field__error" id="profile-name-error" hidden></p>
+            </div>
+            <div class="form-field">
+              <label class="form-field__label" for="profile-email">Correo electrónico</label>
+              <input class="form-field__input" id="profile-email" type="email" readonly />
+              <p class="form-field__hint">El correo de tu cuenta no se puede cambiar.</p>
+            </div>
+            <div class="form-field">
+              <label class="form-field__label" for="profile-phone">Teléfono</label>
+              <input class="form-field__input" id="profile-phone" name="phone" type="tel"
+                     autocomplete="tel" placeholder="Ej: 3001234567" />
+              <p class="form-field__error" id="profile-phone-error" hidden></p>
+            </div>
+            <button class="btn btn--primary" type="submit" id="profile-submit">Guardar cambios</button>
+          </form>
+        </div>
+      </section>
+
+      <section class="account-panel" id="panel-compras" aria-labelledby="tab-compras" hidden>
+        <div class="account-orders" id="orders-container"></div>
+      </section>
+
+      <section class="account-panel" id="panel-vender" aria-labelledby="tab-vender" hidden>
+        <div id="sell-container"></div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="footer" id="app-footer"></footer>
+
+  <script type="module" src="./js/pages/account.js"></script>
+</body>
+</html>

@@ -1,0 +1,224 @@
+/* Archivo: /css/pages/seller.css — Estilos del panel del vendedor.
+   Sigue la referencia visual: tarjetas blancas muy redondeadas sobre fondo
+   gris, filas delineadas y badges tipo píldora. Mobile-first. */
+
+/* ---------- Barra superior de "Mis productos" ---------- */
+.seller-toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+@media (min-width: 640px) {
+  .seller-toolbar {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.seller-toolbar__hint {
+  color: var(--color-texto-secundario);
+  font-size: 0.85rem;
+}
+
+/* Envoltorio blanco redondeado para las tablas del panel */
+.seller-table-card {
+  background-color: var(--color-superficie);
+  border-radius: var(--radio-tarjeta);
+  box-shadow: var(--sombra-tarjeta);
+  padding: 6px 10px;
+}
+
+@media (min-width: 768px) {
+  .seller-table-card {
+    padding: 10px 16px;
+  }
+}
+
+.seller-actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+/* Origen del producto: badge azul para Dropi (Manual usa badge--neutral) */
+.badge--dropi {
+  background-color: var(--color-accion-suave);
+  color: var(--color-accion);
+}
+
+/* ---------- Tarjeta del total vendido ---------- */
+.seller-total {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 16px;
+}
+
+.seller-total__label {
+  color: var(--color-texto-secundario);
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.seller-total__amount {
+  font-size: 1.8rem;
+  font-weight: 700;
+}
+
+/* ---------- Formulario del modal de producto ---------- */
+.check-field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.check-field input {
+  accent-color: var(--color-accion);
+}
+
+.seller-form__upload-status {
+  font-size: 0.8rem;
+  color: var(--color-texto-secundario);
+}
+
+.seller-form__images-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.seller-form__preview {
+  position: relative;
+  width: 72px;
+  height: 72px;
+}
+
+.seller-form__preview-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: var(--radio-borde);
+  border: 1px solid var(--color-fondo);
+}
+
+.seller-form__preview-remove {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-error);
+  color: var(--color-superficie);
+  border: none;
+  border-radius: 50%;
+  font-size: 0.65rem;
+  line-height: 1;
+}
+
+.seller-form__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+/* ---------- Pestaña Dropi ---------- */
+.dropi-note {
+  margin-bottom: 16px;
+  padding: 14px 20px;
+}
+
+.dropi-note__text {
+  color: var(--color-texto-secundario);
+  font-size: 0.85rem;
+}
+
+.dropi-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.dropi-toolbar__search {
+  display: flex;
+  gap: 8px;
+  flex: 1;
+  min-width: 220px;
+}
+
+.dropi-toolbar__search .form-field__input {
+  flex: 1;
+  width: auto;
+}
+
+.dropi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 16px;
+}
+
+.dropi-card {
+  background-color: var(--color-superficie);
+  border-radius: var(--radio-tarjeta);
+  box-shadow: var(--sombra-tarjeta);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.dropi-card__image {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-bottom: 1px solid var(--color-fondo);
+}
+
+.dropi-card__body {
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+}
+
+.dropi-card__name {
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.dropi-card__meta {
+  font-size: 0.82rem;
+  color: var(--color-texto-secundario);
+}
+
+.dropi-card__meta strong {
+  color: var(--color-texto);
+}
+
+.dropi-card__import {
+  margin-top: auto;
+}
+
+.dropi-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-top: 20px;
+}
+
+.dropi-pagination__info {
+  font-size: 0.85rem;
+  color: var(--color-texto-secundario);
+}

@@ -1,0 +1,170 @@
+/* Archivo: /css/pages/checkout.css
+   Estilos del checkout: dos columnas en escritorio (formulario + resumen),
+   tarjetas de pasarela tipo radio y secciones de pago Bold / reintento. */
+
+.checkout-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ---------- Selección de pasarela ---------- */
+.gateway-fieldset {
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+
+.gateway-fieldset__legend {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-texto);
+  padding: 0;
+  margin-bottom: 10px;
+}
+
+.gateway-options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.gateway-option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid color-mix(in srgb, var(--color-texto-secundario) 30%, transparent);
+  border-radius: var(--radio-borde);
+  padding: 12px 14px;
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.gateway-option:hover {
+  border-color: var(--color-accion);
+}
+
+.gateway-option:has(.gateway-option__radio:checked) {
+  border-color: var(--color-accion);
+  box-shadow: 0 0 0 2px var(--color-accion-suave);
+}
+
+.gateway-option__radio {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--color-accion);
+  flex-shrink: 0;
+}
+
+.gateway-option__name {
+  display: block;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.gateway-option__hint {
+  display: block;
+  color: var(--color-texto-secundario);
+  font-size: 0.8rem;
+}
+
+/* ---------- Resumen del pedido ---------- */
+.checkout-summary__list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.checkout-summary__item {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 0.88rem;
+  padding: 10px 12px;
+  border: 1px solid color-mix(in srgb, var(--color-texto-secundario) 30%, transparent);
+  border-radius: var(--radio-borde);
+}
+
+.checkout-summary__item-qty {
+  color: var(--color-texto-secundario);
+  font-weight: 500;
+}
+
+.checkout-summary__item-subtotal {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.checkout-summary__total {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-weight: 700;
+  font-size: 1.15rem;
+  border-top: 1px solid var(--color-fondo);
+  padding-top: 12px;
+}
+
+/* ---------- Pago embebido de Bold ---------- */
+.bold-embed {
+  margin-top: 20px;
+  border-top: 1px solid var(--color-fondo);
+  padding-top: 20px;
+}
+
+.bold-embed__title {
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.bold-embed__text {
+  color: var(--color-texto-secundario);
+  font-size: 0.88rem;
+  margin-bottom: 14px;
+}
+
+.bold-embed__button {
+  display: flex;
+  justify-content: center;
+}
+
+/* ---------- Aviso de reintento (orden creada, pago fallido) ---------- */
+.payment-retry {
+  margin-top: 20px;
+  border: 1px solid color-mix(in srgb, var(--color-alerta) 45%, transparent);
+  background-color: color-mix(in srgb, var(--color-alerta) 8%, var(--color-superficie));
+  border-radius: var(--radio-borde);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.payment-retry__title {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.payment-retry__text {
+  color: var(--color-texto-secundario);
+  font-size: 0.88rem;
+  margin-bottom: 4px;
+}
+
+@media (min-width: 900px) {
+  .checkout-layout {
+    display: grid;
+    grid-template-columns: 1fr 360px;
+    align-items: start;
+    gap: 20px;
+  }
+
+  /* El resumen acompaña el scroll bajo el header pegajoso */
+  .checkout-summary {
+    position: sticky;
+    top: 120px;
+  }
+}

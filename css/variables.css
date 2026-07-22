@@ -1,0 +1,30 @@
+/* Archivo: /css/variables.css
+   Identidad visual global de Stocki, basada en las capturas de referencia
+   (Ejemplo celular1/2.jpeg y Ejemplo escritorio.jpeg): header ámbar con
+   wordmark blanco, tarjetas blancas muy redondeadas sobre fondo gris,
+   precios en negro y acentos verde/azul.
+   Toda referencia de color/sombra/radio del proyecto debe salir de aquí. */
+:root {
+  --color-primario: #F0A400;        /* Ámbar: header y elementos de marca */
+  --color-primario-oscuro: #D18E00; /* Ámbar oscuro: hovers sobre la marca */
+  --color-accion: #3483FA;          /* Azul: botones, enlaces, CTAs */
+  --color-accion-hover: #2968C8;    /* Azul oscuro: estados hover/active */
+  --color-accion-suave: rgba(52, 131, 250, 0.15); /* Fondo de botones secundarios */
+  --color-fondo: #EDEDED;           /* Gris: fondo general */
+  --color-superficie: #FFFFFF;      /* Blanco: tarjetas y superficies */
+  --color-banner-oscuro: #1D1D1B;   /* Fondo oscuro de banners tipo hero */
+  --color-texto: rgba(0, 0, 0, 0.9);
+  --color-texto-secundario: rgba(0, 0, 0, 0.55);
+  --color-exito: #1BB350;           /* Verde: "Envío gratis", mensajes de éxito */
+  --color-exito-suave: rgba(27, 179, 80, 0.15); /* Fondos de avisos/badges de éxito */
+  --color-borde: rgba(0, 0, 0, 0.12);        /* Bordes sutiles de tarjetas y filas */
+  --color-borde-fuerte: rgba(0, 0, 0, 0.25); /* Bordes de inputs y controles */
+  --color-error: #F23D4F;           /* Rojo: errores y acciones destructivas */
+  --color-alerta: #FF9500;          /* Naranja: advertencias y estados pendientes */
+  --radio-borde: 10px;              /* Controles: inputs, botones, chips */
+  --radio-tarjeta: 16px;            /* Tarjetas, secciones y modales */
+  --sombra-tarjeta: 0 2px 6px rgba(0, 0, 0, 0.10);
+  --sombra-elevada: 0 8px 18px rgba(0, 0, 0, 0.18);
+  --fuente-principal: 'Poppins', 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+  --ancho-contenedor: 1200px;
+}

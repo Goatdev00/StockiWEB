@@ -1,0 +1,70 @@
+<!-- Archivo: /seller.html -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Panel del vendedor — Stocki</title>
+  <meta name="description" content="Panel del vendedor de Stocki: gestiona tus productos, importa desde Dropi y consulta tus ventas." />
+  <link rel="icon" type="image/svg+xml" href="./assets/favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./css/variables.css" />
+  <link rel="stylesheet" href="./css/base.css" />
+  <link rel="stylesheet" href="./css/components.css" />
+  <link rel="stylesheet" href="./css/pages/seller.css" />
+</head>
+<body>
+  <header class="header" id="app-header"></header>
+
+  <main class="page-main">
+    <div class="container">
+      <h1 class="page-title">Panel del vendedor</h1>
+
+      <div class="tabs" role="tablist" aria-label="Secciones del panel del vendedor">
+        <button class="tabs__tab" id="tab-productos-btn" type="button" role="tab"
+                aria-controls="panel-productos" aria-selected="false" data-tab="productos">Mis productos</button>
+        <button class="tabs__tab" id="tab-dropi-btn" type="button" role="tab"
+                aria-controls="panel-dropi" aria-selected="false" data-tab="dropi">Importar de Dropi</button>
+        <button class="tabs__tab" id="tab-ventas-btn" type="button" role="tab"
+                aria-controls="panel-ventas" aria-selected="false" data-tab="ventas">Mis ventas</button>
+      </div>
+
+      <section id="panel-productos" role="tabpanel" aria-labelledby="tab-productos-btn" hidden>
+        <div class="seller-toolbar">
+          <p class="seller-toolbar__hint">Gestiona tus publicaciones: edita, pausa o elimina tus productos.</p>
+          <button class="btn btn--primary" id="new-product-button" type="button">Publicar producto</button>
+        </div>
+        <div id="products-table-container"></div>
+      </section>
+
+      <section id="panel-dropi" role="tabpanel" aria-labelledby="tab-dropi-btn" hidden>
+        <div class="card dropi-note">
+          <p class="dropi-note__text">Integración con Dropi en modo simulado: se conectará la API real al recibir el token.</p>
+        </div>
+        <div class="dropi-toolbar">
+          <form class="dropi-toolbar__search" id="dropi-search-form" role="search">
+            <label class="visually-hidden" for="dropi-search-input">Buscar en el catálogo de Dropi</label>
+            <input class="form-field__input" id="dropi-search-input" type="search"
+                   placeholder="Buscar productos en Dropi…" />
+            <button class="btn btn--primary" type="submit">Buscar</button>
+          </form>
+          <button class="btn btn--secondary" id="dropi-sync-button" type="button">Sincronizar stock y costos</button>
+        </div>
+        <div id="dropi-results"></div>
+        <nav class="dropi-pagination" id="dropi-pagination" aria-label="Paginación del catálogo de Dropi"></nav>
+      </section>
+
+      <section id="panel-ventas" role="tabpanel" aria-labelledby="tab-ventas-btn" hidden>
+        <div id="sales-summary"></div>
+        <div id="sales-table-container"></div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="footer" id="app-footer"></footer>
+
+  <script type="module" src="./js/pages/seller.js"></script>
+</body>
+</html>

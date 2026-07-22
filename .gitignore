@@ -1,0 +1,18 @@
+# Secretos: jamás versionar variables de entorno reales
+.env
+supabase/.env
+
+# Artefactos locales de la CLI de Supabase
+supabase/.temp/
+supabase/.branches/
+
+# Sistema operativo / editor
+.DS_Store
+Thumbs.db
+node_modules/
+Notas
+
+# Capturas de referencia de diseño (no forman parte del sitio)
+Ejemplo celular1.jpeg
+Ejemplo celular2.jpeg
+Ejemplo escritorio.jpeg

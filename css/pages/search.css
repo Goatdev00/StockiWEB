@@ -1,0 +1,27 @@
+/* Archivo: /css/pages/search.css — Página de búsqueda.
+   Barra de filtros en tarjeta blanca redondeada sobre el fondo gris;
+   la grilla de resultados reutiliza product-grid de components.css. */
+
+.search-toolbar {
+  background-color: var(--color-superficie);
+  border-radius: var(--radio-tarjeta);
+  box-shadow: var(--sombra-tarjeta);
+  padding: 14px 16px;
+  margin-bottom: 20px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+@media (min-width: 640px) {
+  .search-toolbar {
+    grid-template-columns: repeat(2, minmax(0, 280px));
+    align-items: end;
+  }
+}
+
+.search-toolbar__field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
