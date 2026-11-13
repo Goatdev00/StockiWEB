@@ -8,7 +8,6 @@ import { confirmModal } from '../ui/modal.js';
 import { getMainImage } from '../utils/images.js';
 import { getCartItems, updateQuantity, removeFromCart } from '../api/cart.js';
 import { fetchProductsByIds } from '../api/products.js';
-import { getUser } from '../api/auth.js';
 import { formatPrice } from '../utils/format.js';
 import { qs, qsa, escapeHtml, setLoading, renderEmptyState } from '../utils/dom.js';
 
@@ -161,18 +160,9 @@ async function handleAction(button) {
   }
 }
 
-async function goToCheckout(event) {
-  const button = event.currentTarget;
-  button.disabled = true;
-  try {
-    // Con sesión va directo al checkout; sin sesión pasa por login y vuelve
-    const user = await getUser();
-    window.location.href = user ? './checkout.html' : './auth.html?next=checkout.html';
-  } catch (error) {
-    console.error(error);
-    button.disabled = false;
-    showToast('No pudimos verificar tu sesión', 'error');
-  }
+// El checkout admite compradores con cuenta e invitados: no se exige sesión
+function goToCheckout() {
+  window.location.href = './checkout.html';
 }
 
 function bindEvents() {

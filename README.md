@@ -1,6 +1,6 @@
 # Stocki
 
-Marketplace estilo MercadoLibre Colombia: cualquier usuario puede comprar y, si lo desea, activar su perfil de **vendedor** para publicar productos propios o importados desde **Dropi** (dropshipping). Pagos con **Bold** y **MercadoPago**.
+Marketplace estilo MercadoLibre Colombia: cualquiera puede comprar —con cuenta o **como invitado, sin registrarse**— y, si lo desea, activar su perfil de **vendedor** para publicar productos propios o importados desde **Dropi** (dropshipping). Pagos con **Bold** y **MercadoPago**.
 
 ## Stack
 
@@ -21,7 +21,7 @@ Marketplace estilo MercadoLibre Colombia: cualquier usuario puede comprar y, si 
 ├── search.html           Búsqueda y filtros
 ├── product.html          Detalle de producto
 ├── cart.html             Carrito (localStorage + sync Supabase)
-├── checkout.html         Dirección + selección de pasarela
+├── checkout.html         Dirección + selección de pasarela (con cuenta o invitado)
 ├── order-confirmation.html  Estado del pago (fuente de verdad: webhook)
 ├── auth.html             Login / registro
 ├── account.html          Perfil, mis compras, activar vendedor
@@ -40,7 +40,7 @@ Marketplace estilo MercadoLibre Colombia: cualquier usuario puede comprar y, si 
 │   └── utils/            Helpers (formato COP, DOM)
 └── supabase/
     ├── schema.sql        Esquema completo: tablas, RLS, Storage, seed
-    ├── config.toml       Config CLI (webhooks sin verify_jwt)
+    ├── config.toml       Config CLI (funciones públicas: webhooks y payments-create)
     ├── .env.example      Plantilla de secretos de Edge Functions
     └── functions/
         ├── _shared/      cors, cliente admin, adaptadores (pagos, dropi)
@@ -73,9 +73,21 @@ Los pasos detallados (SQL, secretos, deploy de funciones, GitHub Pages, DNS de H
 1. Ejecutar `supabase/schema.sql` en el editor SQL de Supabase.
 2. Registrarte en la web y auto-promoverte a admin (bloque final del schema.sql).
 3. `supabase secrets set --env-file supabase/.env` (a partir de `.env.example`).
-4. `supabase functions deploy` (los webhooks ya van con `verify_jwt=false`).
+4. `supabase functions deploy` (los webhooks y `payments-create` ya van con `verify_jwt=false`).
 5. Activar GitHub Pages sobre la rama `main` y configurar el dominio.
 6. Registrar las URLs de los webhooks en los paneles de Bold y MercadoPago.
+
+## Compra sin cuenta (invitado)
+
+El checkout no exige sesión. Sin cuenta, el flujo es:
+
+1. `create_guest_order()` (función SQL `SECURITY DEFINER`) crea la orden con `buyer_id = NULL`. Valida en el servidor productos, stock y datos de envío, y calcula precios y total desde `products`: del navegador solo acepta qué producto y cuántas unidades.
+2. Devuelve un **token secreto** que solo conoce el comprador: en la base queda únicamente su hash SHA-256 (`orders.guest_token_hash`), así que ni un vendedor ni un admin que lea la fila pueden usarlo.
+3. Con ese token el invitado consulta su orden (`get_guest_order()`) y la paga (`payments-create` lo acepta en lugar de la sesión). El enlace de su orden es `order-confirmation.html?order=…&token=…`; como no hay cuenta ni «Mis compras», ese enlace es su único acceso y la página le pide guardarlo.
+
+Las órdenes con cuenta no cambian: siguen protegidas por RLS y por la sesión de su dueño, y el token de invitado nunca las abre.
+
+Si la base aún no tiene estas funciones (schema.sql sin re-ejecutar), el checkout lo detecta y pide iniciar sesión como antes: publicar el frontend primero no rompe nada.
 
 ## Estado de integraciones
 

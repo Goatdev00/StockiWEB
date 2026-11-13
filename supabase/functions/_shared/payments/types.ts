@@ -5,9 +5,11 @@
 export type GatewayId = 'bold' | 'mercadopago';
 
 // Fila de public.orders con las columnas que usa el flujo de pago.
+// buyer_id es null en las compras de invitado (ver _shared/orderAccess.ts).
 export interface OrderRecord {
   id: string;
-  buyer_id: string;
+  buyer_id: string | null;
+  guest_token_hash: string | null;
   status: string;
   total: number;
   payment_gateway: string | null;
@@ -27,9 +29,12 @@ export interface OrderItemRecord {
 
 // Contexto de entorno que el adaptador necesita para construir URLs:
 // siteUrl para redirecciones al sitio y supabaseUrl para webhooks propios.
+// confirmationUrl es la página a la que vuelve el comprador tras pagar; en las
+// compras de invitado ya incluye el token que le permite ver su orden.
 export interface CheckoutContext {
   siteUrl: string;
   supabaseUrl: string;
+  confirmationUrl: string;
 }
 
 // Payload que consume el botón embebido de Bold en el frontend. La firma de

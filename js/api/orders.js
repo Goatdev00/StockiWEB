@@ -1,6 +1,8 @@
 // Archivo: /js/api/orders.js
 // Creación y consulta de órdenes. La orden nace 'pendiente'; solo el webhook
 // de pago (Edge Function con secret key) puede marcarla 'pagada'.
+// Hay dos caminos: con cuenta (tablas protegidas por RLS) y de invitado (sin
+// cuenta: funciones create_guest_order / get_guest_order y un token secreto).
 import { supabase } from '../supabaseClient.js';
 import { getUser } from './auth.js';
 
@@ -63,6 +65,88 @@ export async function createOrder({ items, shippingAddress, gateway }) {
 
   return order;
 }
+
+// --- Compra de invitado (sin cuenta) ------------------------------------------
+// El invitado no tiene sesión: lo único que le da acceso a su orden es el token
+// que devuelve create_guest_order. Viaja en el enlace de la orden y además se
+// recuerda en este navegador por si el enlace llega sin él.
+
+const GUEST_ORDERS_KEY = 'stocki_guest_orders';
+const MAX_REMEMBERED_GUEST_ORDERS = 20;
+// PostgREST responde PGRST202 cuando la función no existe en la base
+const MISSING_FUNCTION_CODE = 'PGRST202';
+const PROBE_ORDER_ID = '00000000-0000-4000-8000-000000000000';
+
+function readGuestOrders() {
+  try {
+    const entries = JSON.parse(localStorage.getItem(GUEST_ORDERS_KEY) ?? '[]');
+    return Array.isArray(entries) ? entries : [];
+  } catch {
+    return [];
+  }
+}
+
+export function rememberGuestOrder(orderId, token) {
+  if (!orderId || !token) return;
+  const entries = readGuestOrders().filter((entry) => entry.id !== orderId);
+  entries.push({ id: orderId, token });
+  try {
+    localStorage.setItem(
+      GUEST_ORDERS_KEY,
+      JSON.stringify(entries.slice(-MAX_REMEMBERED_GUEST_ORDERS))
+    );
+  } catch {
+    // Sin almacenamiento (modo privado estricto): el enlace sigue llevando el token
+  }
+}
+
+export function getGuestOrderToken(orderId) {
+  return readGuestOrders().find((entry) => entry.id === orderId)?.token ?? null;
+}
+
+// La compra de invitado necesita la versión de supabase/schema.sql que define
+// sus funciones. Si la base aún no la tiene, el checkout pide iniciar sesión.
+export async function isGuestCheckoutAvailable() {
+  const { error } = await supabase.rpc('get_guest_order', {
+    p_order_id: PROBE_ORDER_ID,
+    p_token: '',
+  });
+  if (!error) return true;
+  if (error.code === MISSING_FUNCTION_CODE) return false;
+  throw error;
+}
+
+// El servidor recalcula precios, total y stock: del carrito solo se envía qué
+// producto y cuántas unidades. Devuelve { id, accessToken }.
+export async function createGuestOrder({ items, shippingAddress, gateway }) {
+  if (!items?.length) throw new Error('El carrito está vacío');
+  const { data, error } = await supabase.rpc('create_guest_order', {
+    p_items: items.map((item) => ({ product_id: item.product_id, quantity: item.quantity })),
+    p_shipping: shippingAddress,
+    p_gateway: gateway,
+  });
+  if (error) {
+    if (error.code === MISSING_FUNCTION_CODE) {
+      throw new Error('La compra sin cuenta no está disponible en este momento. Ingresa o crea una cuenta para continuar.');
+    }
+    throw error;
+  }
+  rememberGuestOrder(data.id, data.access_token);
+  return { id: data.id, accessToken: data.access_token };
+}
+
+// Devuelve la orden (con order_items y last_payment_status) o null si el
+// token no corresponde a esa orden.
+export async function fetchGuestOrder(orderId, token) {
+  const { data, error } = await supabase.rpc('get_guest_order', {
+    p_order_id: orderId,
+    p_token: token,
+  });
+  if (error) throw error;
+  return data;
+}
+
+// --- Consultas con cuenta --------------------------------------------------------
 
 export async function fetchMyOrders() {
   const user = await getUser();

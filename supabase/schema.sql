@@ -43,9 +43,13 @@ create table if not exists public.products (
   updated_at       timestamptz not null default now()
 );
 
+-- buyer_id es NULL en las compras de invitado (sin cuenta). Esas órdenes las
+-- crea create_guest_order() y se consultan/pagan con un token secreto del que
+-- aquí solo se guarda el hash SHA-256: quien lea la fila no puede usarlo.
 create table if not exists public.orders (
   id               uuid primary key default gen_random_uuid(),
-  buyer_id         uuid not null references public.profiles (id) on delete cascade,
+  buyer_id         uuid references public.profiles (id) on delete cascade,
+  guest_token_hash text,
   status           text not null default 'pendiente'
                    check (status in ('pendiente', 'pagada', 'enviada', 'entregada', 'cancelada')),
   total            numeric(14, 2) not null check (total >= 0),
@@ -56,6 +60,15 @@ create table if not exists public.orders (
   created_at       timestamptz not null default now(),
   updated_at       timestamptz not null default now()
 );
+
+-- Instalaciones previas a la compra de invitado: se adapta la tabla existente
+alter table public.orders alter column buyer_id drop not null;
+alter table public.orders add column if not exists guest_token_hash text;
+
+-- Toda orden pertenece a una cuenta o tiene un token de invitado
+alter table public.orders drop constraint if exists orders_buyer_or_guest;
+alter table public.orders add constraint orders_buyer_or_guest
+  check (buyer_id is not null or guest_token_hash is not null);
 
 -- Snapshot de título/precio por ítem: el historial sobrevive a ediciones del
 -- producto. seller_id habilita el futuro reparto de cobros por vendedor.
@@ -266,6 +279,7 @@ begin
   if not v_privileged then
     if new.total is distinct from old.total
        or new.buyer_id is distinct from old.buyer_id
+       or new.guest_token_hash is distinct from old.guest_token_hash
        or new.fulfillment is distinct from old.fulfillment
        or new.shipping_address is distinct from old.shipping_address
        or new.payment_gateway is distinct from old.payment_gateway then
@@ -326,6 +340,180 @@ $$;
 
 revoke execute on function public.mark_order_paid(uuid) from public, anon, authenticated;
 grant execute on function public.mark_order_paid(uuid) to service_role;
+
+-- ------------------------------------------------------------
+-- Compra de invitado (sin cuenta)
+-- ------------------------------------------------------------
+-- Un visitante sin sesión no puede escribir en orders (RLS exige buyer_id =
+-- auth.uid()). Su orden la crea create_guest_order(), que valida todo en el
+-- servidor y devuelve un token secreto; con ese token la consulta
+-- (get_guest_order) y la paga (Edge Function payments-create).
+
+create or replace function public.hash_guest_token(p_token text)
+returns text
+language sql immutable
+as $$
+  select encode(sha256(convert_to(coalesce(p_token, ''), 'UTF8')), 'hex');
+$$;
+
+-- p_items: [{ "product_id": uuid, "quantity": n }]. Los precios, títulos y el
+-- total salen SIEMPRE de products: lo que mande el navegador no se usa.
+create or replace function public.create_guest_order(
+  p_items    jsonb,
+  p_shipping jsonb,
+  p_gateway  text
+)
+returns jsonb
+language plpgsql security definer set search_path = public
+as $$
+declare
+  v_uuid_re  constant text := '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$';
+  v_shipping jsonb;
+  v_line     record;
+  v_lines    jsonb := '[]'::jsonb;
+  v_total    numeric(14, 2) := 0;
+  v_token    text;
+  v_order_id uuid;
+begin
+  if p_gateway is null or p_gateway not in ('bold', 'mercadopago') then
+    raise exception 'Selecciona un método de pago válido';
+  end if;
+
+  -- Datos de envío: solo las claves conocidas y recortadas (la llamada es
+  -- anónima, así que no se guarda nada que no se espere).
+  v_shipping := jsonb_build_object(
+    'full_name',  btrim(coalesce(p_shipping ->> 'full_name', '')),
+    'email',      lower(btrim(coalesce(p_shipping ->> 'email', ''))),
+    'phone',      btrim(coalesce(p_shipping ->> 'phone', '')),
+    'address',    btrim(coalesce(p_shipping ->> 'address', '')),
+    'city',       btrim(coalesce(p_shipping ->> 'city', '')),
+    'department', btrim(coalesce(p_shipping ->> 'department', '')),
+    'notes',      btrim(coalesce(p_shipping ->> 'notes', ''))
+  );
+  if exists (
+    select 1 from jsonb_each_text(v_shipping) as field
+    where field.key <> 'notes' and field.value = ''
+  ) then
+    raise exception 'Completa todos los datos de envío';
+  end if;
+  if (v_shipping ->> 'email') !~ '^[^[:space:]@]+@[^[:space:]@]+\.[^[:space:]@]+$' then
+    raise exception 'Ingresa un correo electrónico válido';
+  end if;
+  if exists (
+    select 1 from jsonb_each_text(v_shipping) as field
+    where char_length(field.value) > 500
+  ) then
+    raise exception 'Uno de los datos de envío es demasiado largo';
+  end if;
+
+  if p_items is null or jsonb_typeof(p_items) <> 'array' or jsonb_array_length(p_items) = 0 then
+    raise exception 'El carrito está vacío';
+  end if;
+  if jsonb_array_length(p_items) > 50 then
+    raise exception 'Demasiados productos en una sola orden';
+  end if;
+  -- Se valida el formato ANTES de convertir a uuid/integer más abajo
+  if exists (
+    select 1 from jsonb_array_elements(p_items) as elem
+    where coalesce(elem ->> 'product_id', '') !~* v_uuid_re
+       or coalesce(elem ->> 'quantity', '') !~ '^[1-9][0-9]{0,3}$'
+  ) then
+    raise exception 'El carrito tiene un producto inválido';
+  end if;
+
+  for v_line in
+    select requested.product_id, requested.quantity,
+           p.id as found_id, p.title, p.price, p.stock, p.seller_id
+    from (
+      select (elem ->> 'product_id')::uuid as product_id,
+             sum((elem ->> 'quantity')::integer)::integer as quantity
+      from jsonb_array_elements(p_items) as elem
+      group by 1
+    ) as requested
+    left join public.products p on p.id = requested.product_id and p.active
+    order by requested.product_id
+  loop
+    if v_line.found_id is null then
+      raise exception 'Un producto del carrito ya no está disponible';
+    end if;
+    if v_line.stock < v_line.quantity then
+      raise exception 'Stock insuficiente para "%"', v_line.title;
+    end if;
+    v_total := v_total + v_line.price * v_line.quantity;
+    -- Se guarda la línea tal como se validó: total e ítems salen del mismo dato
+    v_lines := v_lines || jsonb_build_object(
+      'product_id', v_line.product_id,
+      'seller_id',  v_line.seller_id,
+      'title',      v_line.title,
+      'unit_price', v_line.price,
+      'quantity',   v_line.quantity
+    );
+  end loop;
+
+  -- 244 bits aleatorios (dos UUID v4); en la base solo queda su hash
+  v_token := replace(gen_random_uuid()::text || gen_random_uuid()::text, '-', '');
+
+  insert into public.orders
+    (buyer_id, guest_token_hash, status, total, shipping_address, payment_gateway)
+  values
+    (null, public.hash_guest_token(v_token), 'pendiente', v_total, v_shipping, p_gateway)
+  returning id into v_order_id;
+
+  insert into public.order_items
+    (order_id, product_id, seller_id, title, unit_price, quantity, subtotal)
+  select v_order_id,
+         (line ->> 'product_id')::uuid,
+         (line ->> 'seller_id')::uuid,
+         line ->> 'title',
+         (line ->> 'unit_price')::numeric,
+         (line ->> 'quantity')::integer,
+         (line ->> 'unit_price')::numeric * (line ->> 'quantity')::integer
+  from jsonb_array_elements(v_lines) as line;
+
+  return jsonb_build_object('id', v_order_id, 'access_token', v_token, 'total', v_total);
+end;
+$$;
+
+-- Devuelve la orden de invitado (con sus ítems y el estado del último intento
+-- de pago) solo si el token coincide; en cualquier otro caso devuelve NULL.
+create or replace function public.get_guest_order(p_order_id uuid, p_token text)
+returns jsonb
+language sql stable security definer set search_path = public
+as $$
+  select jsonb_build_object(
+    'id', o.id,
+    'status', o.status,
+    'total', o.total,
+    'payment_gateway', o.payment_gateway,
+    'shipping_address', o.shipping_address,
+    'created_at', o.created_at,
+    'order_items', coalesce((
+      select jsonb_agg(
+        jsonb_build_object(
+          'id', i.id, 'title', i.title, 'unit_price', i.unit_price,
+          'quantity', i.quantity, 'subtotal', i.subtotal, 'product_id', i.product_id
+        ) order by i.title, i.id
+      )
+      from public.order_items i
+      where i.order_id = o.id
+    ), '[]'::jsonb),
+    'last_payment_status', (
+      select p.status from public.payments p
+      where p.order_id = o.id
+      order by p.created_at desc
+      limit 1
+    )
+  )
+  from public.orders o
+  where o.id = p_order_id
+    and o.buyer_id is null
+    and o.guest_token_hash = public.hash_guest_token(p_token);
+$$;
+
+revoke execute on function public.create_guest_order(jsonb, jsonb, text) from public;
+revoke execute on function public.get_guest_order(uuid, text) from public;
+grant execute on function public.create_guest_order(jsonb, jsonb, text) to anon, authenticated, service_role;
+grant execute on function public.get_guest_order(uuid, text) to anon, authenticated, service_role;
 
 -- ============================================================
 -- 3. VISTA PÚBLICA DE CATÁLOGO

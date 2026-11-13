@@ -27,12 +27,24 @@
       <div class="checkout-layout" id="checkout-layout" hidden>
         <section class="card" aria-label="Datos de envío y método de pago">
           <h2 class="card__title">Datos de envío</h2>
+          <p class="checkout-guest" id="guest-notice" hidden>
+            Estás comprando como invitado: no necesitas crear una cuenta.
+            <a class="checkout-guest__link" href="./auth.html?next=checkout.html">¿Ya tienes cuenta? Ingresa</a>
+          </p>
           <form class="form" id="checkout-form" novalidate>
             <div class="form-field">
               <label class="form-field__label" for="full-name">Nombre completo</label>
               <input class="form-field__input" id="full-name" name="fullName" type="text"
                      autocomplete="name" required />
               <p class="form-field__error" data-error-for="full-name" hidden></p>
+            </div>
+
+            <div class="form-field">
+              <label class="form-field__label" for="email">Correo electrónico</label>
+              <input class="form-field__input" id="email" name="email" type="email"
+                     autocomplete="email" inputmode="email" placeholder="Ej: nombre@correo.com" required />
+              <p class="form-field__hint">Solo para contactarte sobre este pedido.</p>
+              <p class="form-field__error" data-error-for="email" hidden></p>
             </div>
 
             <div class="form-field">
@@ -92,10 +104,10 @@
           <section class="payment-retry" id="payment-retry" hidden aria-label="Reintentar pago">
             <h2 class="payment-retry__title">Tu orden quedó creada</h2>
             <p class="payment-retry__text">
-              No pudimos iniciar el pago en este momento. Encuentra la orden en «Mis compras»
-              para reintentar el pago más tarde.
+              No pudimos iniciar el pago en este momento. Desde la página de tu orden puedes
+              reintentarlo cuando quieras.
             </p>
-            <a class="btn btn--secondary" href="./account.html#compras">Ir a mis compras</a>
+            <a class="btn btn--secondary" id="payment-retry-link" href="./index.html">Ver mi orden</a>
           </section>
         </section>
 

@@ -463,6 +463,9 @@
   flex-direction: column;
   gap: 8px;
   width: min(420px, calc(100vw - 32px));
+  /* Solo informan: los clics los atraviesan, para no tapar el botón que quede
+     debajo (p. ej. «Confirmar y pagar» justo después de un aviso de validación) */
+  pointer-events: none;
 }
 
 .toast {

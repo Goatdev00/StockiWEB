@@ -3,9 +3,18 @@
 // orders.status, que escribe el webhook de la pasarela: los parámetros extra
 // que Bold/MercadoPago agregan a la URL (status, bold-tx-status…) se ignoran
 // a propósito porque cualquiera puede manipularlos.
+//
+// La orden se abre de dos formas: con la sesión de su dueño, o —en compras de
+// invitado— con el token secreto del enlace (?order=…&token=…).
 import { initLayout, requireAuth } from '../ui/layout.js';
 import { showToast } from '../ui/toast.js';
-import { fetchOrderById } from '../api/orders.js';
+import { getUser } from '../api/auth.js';
+import {
+  fetchOrderById,
+  fetchGuestOrder,
+  getGuestOrderToken,
+  rememberGuestOrder,
+} from '../api/orders.js';
 import { startPayment, fetchPaymentsByOrder, GATEWAYS } from '../api/payments.js';
 import { formatPrice, formatDate, formatOrderStatus } from '../utils/format.js';
 import { qs, escapeHtml, getQueryParam, setLoading, renderEmptyState } from '../utils/dom.js';
@@ -16,6 +25,12 @@ const MAX_POLL_ATTEMPTS = 8;
 let orderId = null;
 let pollAttempts = 0;
 let pollTimer = null;
+let hasSession = false;
+// Tokens de invitado a probar: el del enlace y el recordado en este navegador
+let guestTokenCandidates = [];
+// Token que abrió la orden. Si tiene valor, lo que se muestra es una compra de
+// invitado: no aparece en «Mis compras» y se paga con el token, no con sesión.
+let guestToken = null;
 
 function getContainer() {
   return qs('#confirmation-container');
@@ -28,9 +43,44 @@ function shortId(id) {
 function renderNotFound() {
   renderEmptyState(getContainer(), {
     title: 'No encontramos esta orden',
-    text: 'El enlace puede ser incorrecto o la orden pertenece a otra cuenta.',
-    actionHtml: '<a class="btn btn--primary" href="./account.html#compras">Ir a mis compras</a>',
+    text: hasSession
+      ? 'El enlace puede ser incorrecto o la orden pertenece a otra cuenta.'
+      : 'El enlace puede estar incompleto. Si compraste sin cuenta, abre el enlace exacto que te mostramos al pagar.',
+    actionHtml: hasSession
+      ? '<a class="btn btn--primary" href="./account.html#compras">Ir a mis compras</a>'
+      : '<a class="btn btn--primary" href="./index.html">Ir al inicio</a>',
   });
+}
+
+// El invitado no tiene «Mis compras»: su único acceso a la orden es este enlace
+function guestNoteHtml() {
+  if (!guestToken) return '';
+  return `
+    <div class="confirmation__guest">
+      <p class="confirmation__guest-text">
+        Compraste sin cuenta: guarda el enlace de esta página para consultar tu pedido más adelante.
+      </p>
+      <button class="btn btn--ghost btn--small" type="button" id="copy-order-link">Copiar enlace</button>
+    </div>`;
+}
+
+function initGuestNote() {
+  const button = qs('#copy-order-link');
+  if (!button) return;
+  button.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      showToast('Enlace copiado', 'success');
+    } catch {
+      showToast('No se pudo copiar: copia la dirección desde la barra del navegador', 'warning');
+    }
+  });
+}
+
+// Enlace a «Mis compras»; para el invitado no existe y no se muestra
+function purchasesLinkHtml(label, variant) {
+  if (guestToken) return '';
+  return `<a class="btn btn--${variant}" href="./account.html#compras">${label}</a>`;
 }
 
 function itemsHtml(order) {
@@ -84,11 +134,13 @@ function renderSuccess(order) {
       </p>
       ${itemsHtml(order)}
       ${addressHtml(order)}
+      ${guestNoteHtml()}
       <div class="confirmation__actions">
-        <a class="btn btn--primary" href="./account.html#compras">Ver mis compras</a>
-        <a class="btn btn--secondary" href="./search.html">Seguir comprando</a>
+        ${purchasesLinkHtml('Ver mis compras', 'primary')}
+        <a class="btn btn--${guestToken ? 'primary' : 'secondary'}" href="./search.html">Seguir comprando</a>
       </div>
     </section>`;
+  initGuestNote();
 }
 
 function renderCancelled(order) {
@@ -97,12 +149,15 @@ function renderCancelled(order) {
       <div class="confirmation__icon confirmation__icon--error" aria-hidden="true">✕</div>
       <h2 class="confirmation__title">El pago no se completó</h2>
       <p class="confirmation__text">
-        La orden ${escapeHtml(shortId(order.id))} quedó cancelada. Puedes revisar el detalle
-        o intentar la compra de nuevo desde «Mis compras».
+        La orden ${escapeHtml(shortId(order.id))} quedó cancelada. ${
+          guestToken
+            ? 'Puedes hacer la compra de nuevo desde el carrito.'
+            : 'Puedes revisar el detalle o intentar la compra de nuevo desde «Mis compras».'
+        }
       </p>
       <div class="confirmation__actions">
-        <a class="btn btn--primary" href="./account.html#compras">Ir a mis compras</a>
-        <a class="btn btn--secondary" href="./cart.html">Volver al carrito</a>
+        ${purchasesLinkHtml('Ir a mis compras', 'primary')}
+        <a class="btn btn--${guestToken ? 'primary' : 'secondary'}" href="./cart.html">Volver al carrito</a>
       </div>
     </section>`;
 }
@@ -177,7 +232,7 @@ function initRetryPayment(order) {
     button.textContent = 'Procesando…';
     try {
       const gateway = order.payment_gateway ?? qs('#retry-gateway').value;
-      const payment = await startPayment(order.id, gateway);
+      const payment = await startPayment(order.id, gateway, guestToken);
       if (gateway === GATEWAYS.MERCADOPAGO && payment?.mercadopago?.initPoint) {
         window.location.href = payment.mercadopago.initPoint;
         return;
@@ -208,11 +263,13 @@ function renderRejected(order) {
         Puedes reintentar el pago o probar con otro medio.
       </p>
       ${retryHtml(order)}
+      ${guestNoteHtml()}
       <div class="confirmation__actions">
-        <a class="btn btn--ghost" href="./account.html#compras">Ver mis compras</a>
+        ${purchasesLinkHtml('Ver mis compras', 'ghost')}
       </div>
     </section>`;
   initRetryPayment(order);
+  initGuestNote();
 }
 
 function renderPending(order) {
@@ -228,17 +285,21 @@ function renderPending(order) {
       <h2 class="confirmation__title">Estamos confirmando tu pago…</h2>
       <p class="confirmation__text">${
         exhausted
-          ? 'La confirmación está tardando más de lo normal. Actualiza el estado o revísalo más tarde en «Mis compras».'
+          ? `La confirmación está tardando más de lo normal. Actualiza el estado o ${
+              guestToken ? 'vuelve más tarde a esta misma página' : 'revísalo más tarde en «Mis compras»'
+            }.`
           : 'Esto puede tardar unos segundos. No cierres esta página.'
       }</p>
       ${exhausted ? '<button class="btn btn--primary" type="button" id="refresh-button">Actualizar estado</button>' : ''}
       ${order ? retryHtml(order) : ''}
+      ${guestNoteHtml()}
       <div class="confirmation__actions">
-        <a class="btn btn--ghost" href="./account.html#compras">Ver mis compras</a>
+        ${purchasesLinkHtml('Ver mis compras', 'ghost')}
       </div>
     </section>`;
 
   if (order) initRetryPayment(order);
+  initGuestNote();
   if (exhausted) {
     qs('#refresh-button').addEventListener('click', handleManualRefresh);
   } else {
@@ -250,20 +311,60 @@ function renderPending(order) {
   }
 }
 
+// La orden de invitado se identifica solo por su token: la dirección de la
+// página debe llevarlo para que el enlace sirva al guardarlo o compartirlo.
+function keepTokenInAddressBar() {
+  const url = new URL(window.location.href);
+  if (url.searchParams.get('token') === guestToken) return;
+  url.searchParams.set('token', guestToken);
+  window.history.replaceState(null, '', url);
+}
+
+// Devuelve { order, lastPaymentStatus } o null si la orden no existe o quien
+// consulta no tiene acceso a ella.
+async function fetchOrderState() {
+  // 1) Compra de invitado: se abre con el token, haya o no sesión
+  for (const token of guestToken ? [guestToken] : guestTokenCandidates) {
+    const order = await fetchGuestOrder(orderId, token);
+    if (!order) continue;
+    if (!guestToken) {
+      // Se recuerda solo un token que funcionó: uno inválido en el enlace no
+      // debe pisar el que este navegador ya tenía guardado
+      guestToken = token;
+      rememberGuestOrder(orderId, token);
+      keepTokenInAddressBar();
+    }
+    return { order, lastPaymentStatus: order.last_payment_status ?? null };
+  }
+  guestToken = null;
+
+  // 2) Orden de una cuenta: RLS solo la devuelve a quien participa en ella
+  if (!hasSession) return null;
+  const order = await fetchOrderById(orderId);
+  if (!order) return null;
+  let lastPaymentStatus = null;
+  if (order.status === 'pendiente') {
+    const payments = await fetchPaymentsByOrder(order.id);
+    lastPaymentStatus = payments?.[0]?.status ?? null;
+  }
+  return { order, lastPaymentStatus };
+}
+
 async function loadOrder() {
   clearTimeout(pollTimer);
   try {
-    const order = await fetchOrderById(orderId);
-    if (!order) {
-      // RLS devuelve null tanto para órdenes inexistentes como ajenas
+    const state = await fetchOrderState();
+    if (!state) {
+      // Tanto RLS como get_guest_order responden vacío para órdenes
+      // inexistentes y para órdenes ajenas
       renderNotFound();
       return;
     }
+    const { order, lastPaymentStatus } = state;
     if (order.status === 'pendiente') {
       // El webhook no cambia la orden cuando la pasarela rechaza el pago: el
       // rechazo solo queda registrado en el intento más reciente de payments
-      const payments = await fetchPaymentsByOrder(order.id);
-      if (payments?.[0]?.status === 'rechazado') {
+      if (lastPaymentStatus === 'rechazado') {
         renderRejected(order);
       } else {
         renderPending(order);
@@ -290,9 +391,18 @@ async function loadOrder() {
 async function init() {
   setLoading(getContainer());
   try {
-    const profile = await requireAuth();
-    if (!profile) return;
     orderId = getQueryParam('order');
+    const linkToken = (getQueryParam('token') ?? '').trim();
+    const rememberedToken = orderId ? getGuestOrderToken(orderId) : null;
+    guestTokenCandidates = [...new Set([linkToken, rememberedToken].filter(Boolean))];
+    hasSession = Boolean(await getUser());
+
+    if (guestTokenCandidates.length === 0 && !hasSession) {
+      // Sin token de invitado solo puede ser la orden de una cuenta: se pide
+      // sesión (requireAuth redirige al login y vuelve a esta misma página)
+      await requireAuth();
+      return;
+    }
     if (!orderId) {
       renderNotFound();
       return;

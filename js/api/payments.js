@@ -14,10 +14,12 @@ export const GATEWAYS = {
 //  - bold:        { gateway: 'bold', bold: { orderReference, amount, currency,
 //                   apiKey, integritySignature, redirectionUrl } }
 //  - mercadopago: { gateway: 'mercadopago', mercadopago: { preferenceId, initPoint } }
-export async function startPayment(orderId, gateway) {
-  const { data, error } = await supabase.functions.invoke('payments-create', {
-    body: { order_id: orderId, gateway },
-  });
+// orderToken solo aplica a órdenes de invitado: reemplaza a la sesión como
+// prueba de que quien paga es quien creó la orden.
+export async function startPayment(orderId, gateway, orderToken = null) {
+  const body = { order_id: orderId, gateway };
+  if (orderToken) body.order_token = orderToken;
+  const { data, error } = await supabase.functions.invoke('payments-create', { body });
   if (error) {
     throw new Error(await functionsErrorMessage(error, 'No se pudo iniciar el pago'));
   }

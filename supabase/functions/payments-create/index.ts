@@ -2,8 +2,13 @@
 // Inicia el pago de una orden pendiente. Corre con la secret key porque debe
 // revalidar precios contra la base ANTES de firmar/crear cualquier checkout:
 // el total que ve la pasarela sale de aquí, nunca del navegador.
+//
+// Se despliega con verify_jwt = false (config.toml): los invitados no tienen
+// sesión, así que la autorización se hace AQUÍ, orden por orden: la sesión del
+// dueño para órdenes con cuenta o el token secreto para órdenes de invitado.
 import { errorResponse, handleOptions, jsonResponse } from '../_shared/cors.ts';
 import { createAdminClient, getAuthenticatedUser } from '../_shared/supabase.ts';
+import { authorizeOrderAccess, isGuestOrder } from '../_shared/orderAccess.ts';
 import { getAdapter } from '../_shared/payments/index.ts';
 import type { CheckoutContext, OrderItemRecord, OrderRecord } from '../_shared/payments/types.ts';
 
@@ -20,7 +25,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
   }
 
   try {
-    let body: { order_id?: unknown; gateway?: unknown };
+    let body: { order_id?: unknown; gateway?: unknown; order_token?: unknown };
     try {
       body = await req.json();
     } catch {
@@ -29,16 +34,13 @@ Deno.serve(async (req: Request): Promise<Response> => {
 
     const orderId = typeof body.order_id === 'string' ? body.order_id.trim() : '';
     const gateway = typeof body.gateway === 'string' ? body.gateway : '';
+    // Solo lo envían las compras de invitado (ver _shared/orderAccess.ts)
+    const orderToken = typeof body.order_token === 'string' ? body.order_token.trim() : '';
     if (!UUID_RE.test(orderId)) {
       return errorResponse('order_id inválido', 400);
     }
     if (!ALLOWED_GATEWAYS.includes(gateway)) {
       return errorResponse('Pasarela de pago no soportada', 400);
-    }
-
-    const user = await getAuthenticatedUser(req);
-    if (!user) {
-      return errorResponse('Debes iniciar sesión para pagar', 401);
     }
 
     const siteUrl = (Deno.env.get('PUBLIC_SITE_URL') ?? '').replace(/\/+$/, '');
@@ -51,7 +53,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
 
     const { data: orderData, error: orderError } = await admin
       .from('orders')
-      .select('id, buyer_id, status, total, payment_gateway')
+      .select('id, buyer_id, guest_token_hash, status, total, payment_gateway')
       .eq('id', orderId)
       .maybeSingle();
     if (orderError) throw orderError;
@@ -60,8 +62,11 @@ Deno.serve(async (req: Request): Promise<Response> => {
     if (!order) {
       return errorResponse('La orden no existe', 404);
     }
-    if (order.buyer_id !== user.id) {
-      return errorResponse('No puedes pagar una orden de otra persona', 403);
+    // La sesión solo se resuelve para órdenes con cuenta: un invitado no tiene
+    const user = isGuestOrder(order) ? null : await getAuthenticatedUser(req);
+    const access = await authorizeOrderAccess(order, user?.id ?? null, orderToken);
+    if (!access.ok) {
+      return errorResponse(access.message, access.status);
     }
     if (order.status !== 'pendiente') {
       return errorResponse('La orden ya no está pendiente de pago', 409);
@@ -154,7 +159,11 @@ Deno.serve(async (req: Request): Promise<Response> => {
       console.error(`payments-create: no se pudo guardar payment_gateway de la orden ${order.id}`, gatewayError);
     }
 
-    const ctx: CheckoutContext = { siteUrl, supabaseUrl };
+    // El invitado vuelve del pago con su token en el enlace: es lo único que le
+    // permite ver la orden (puede regresar en otro navegador o aplicación).
+    const guestSuffix = isGuestOrder(order) ? `&token=${encodeURIComponent(orderToken)}` : '';
+    const confirmationUrl = `${siteUrl}/order-confirmation.html?order=${order.id}${guestSuffix}`;
+    const ctx: CheckoutContext = { siteUrl, supabaseUrl, confirmationUrl };
     const adapter = getAdapter(gateway);
     const payload = await adapter.createCheckout(order, items, ctx);
 

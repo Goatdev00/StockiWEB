@@ -8,6 +8,25 @@
   gap: 16px;
 }
 
+/* ---------- Aviso de compra como invitado ---------- */
+.checkout-guest {
+  background-color: var(--color-accion-suave);
+  border-radius: var(--radio-borde);
+  padding: 10px 14px;
+  font-size: 0.88rem;
+  margin-bottom: 16px;
+}
+
+.checkout-guest__link {
+  color: var(--color-accion);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.checkout-guest__link:hover {
+  color: var(--color-accion-hover);
+}
+
 /* ---------- Selección de pasarela ---------- */
 .gateway-fieldset {
   border: none;

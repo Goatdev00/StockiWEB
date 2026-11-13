@@ -74,7 +74,7 @@ export async function setProductActive(id, active) {
 export async function fetchAllOrders() {
   const { data, error } = await supabase
     .from('orders')
-    .select('id, status, total, payment_gateway, created_at, shipping_address, buyer:profiles(full_name), order_items(id, title, quantity, subtotal)')
+    .select('id, buyer_id, status, total, payment_gateway, created_at, shipping_address, buyer:profiles(full_name), order_items(id, title, quantity, subtotal)')
     .order('created_at', { ascending: false });
   if (error) throw error;
   return data;

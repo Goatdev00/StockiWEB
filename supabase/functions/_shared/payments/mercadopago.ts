@@ -30,7 +30,7 @@ export const mercadoPagoAdapter: PaymentAdapter = {
 
     // Las tres rutas de retorno apuntan a la confirmación: esa página consulta
     // el estado real de la orden, nunca confía en la URL de regreso.
-    const confirmationUrl = `${ctx.siteUrl}/order-confirmation.html?order=${order.id}`;
+    const confirmationUrl = ctx.confirmationUrl;
 
     const preferenceBody = {
       items: items.map((item) => ({

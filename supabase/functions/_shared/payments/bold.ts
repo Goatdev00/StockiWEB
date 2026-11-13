@@ -35,7 +35,7 @@ export const boldAdapter: PaymentAdapter = {
     // Bold cobra en COP sin decimales: el total viaja como entero.
     const amount = Math.round(Number(order.total));
     const currency = 'COP';
-    const redirectionUrl = `${ctx.siteUrl}/order-confirmation.html?order=${order.id}`;
+    const redirectionUrl = ctx.confirmationUrl;
 
     // Firma de integridad: SHA-256 hex de referencia + monto + moneda + secreto.
     // TODO: verificar el formato exacto de la cadena a firmar con la

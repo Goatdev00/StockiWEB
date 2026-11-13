@@ -3,6 +3,12 @@
 # Los webhooks de pago deben ser públicos: las pasarelas no envían JWT de Supabase.
 project_id = "stocki"
 
+# También pública: los compradores invitados (sin cuenta) no tienen sesión. La
+# función autoriza cada llamada por su cuenta: sesión del dueño de la orden o
+# token secreto de la orden de invitado (ver _shared/orderAccess.ts).
+[functions.payments-create]
+verify_jwt = false
+
 [functions.payments-webhook-bold]
 verify_jwt = false
 

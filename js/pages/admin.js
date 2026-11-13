@@ -46,6 +46,7 @@ const CONFIRMED_ORDER_STATUSES = ['pagada', 'enviada', 'entregada'];
 const ADDRESS_LABELS = {
   full_name: 'Nombre',
   name: 'Nombre',
+  email: 'Correo',
   phone: 'Teléfono',
   address: 'Dirección',
   address_line: 'Dirección',
@@ -59,6 +60,14 @@ const ADDRESS_LABELS = {
   country: 'País',
   notes: 'Notas',
 };
+
+// Nombre del comprador de una orden. Las compras de invitado no tienen cuenta
+// (buyer_id nulo): se muestra el nombre que escribió en los datos de envío.
+function orderBuyerName(order, fallback = '—') {
+  const shippingName = String(order.shipping_address?.full_name ?? '').trim();
+  if (!order.buyer_id) return shippingName ? `${shippingName} (invitado)` : 'Invitado';
+  return order.buyer?.full_name?.trim() || shippingName || fallback;
+}
 
 const state = {
   profile: null,
@@ -446,7 +455,7 @@ function renderOrdersTable() {
 
   const rows = orders
     .map((order) => {
-      const buyerName = order.buyer?.full_name?.trim() || '—';
+      const buyerName = orderBuyerName(order);
       return `
         <tr>
           <td class="admin-nowrap">${escapeHtml(formatDate(order.created_at))}</td>
@@ -505,7 +514,7 @@ function shippingAddressHtml(address) {
 }
 
 function openOrderDetailModal(order) {
-  const buyerName = order.buyer?.full_name?.trim() || '—';
+  const buyerName = orderBuyerName(order);
   const items = order.order_items ?? [];
   const itemsHtml = items.length
     ? items
@@ -573,7 +582,7 @@ async function onOrderStatusChange(select) {
     return;
   }
 
-  const buyerName = order.buyer?.full_name?.trim() || 'el comprador';
+  const buyerName = orderBuyerName(order, 'el comprador');
   const confirmed = await confirmModal({
     title: 'Cambiar estado de la orden',
     message: `¿Marcar la orden de <strong>${escapeHtml(buyerName)}</strong> (${escapeHtml(formatDate(order.created_at))}) como <strong>${escapeHtml(formatOrderStatus(newStatus))}</strong>?`,
