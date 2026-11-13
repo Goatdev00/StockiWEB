@@ -542,53 +542,67 @@ begin
       ('Audífonos inalámbricos Bluetooth 5.3',
        'Audífonos in-ear con cancelación de ruido, estuche de carga y 30 horas de batería total. Resistencia al agua IPX4.',
        (select id from public.categories where slug = 'tecnologia'), 129900, 25,
-       array['https://picsum.photos/seed/stocki-audifonos/600/600'], true),
+       array['https://stocki.site/assets/products/stocki-audifonos.webp'], true),
       ('Smartwatch deportivo con GPS',
        'Reloj inteligente con GPS integrado, monitoreo de ritmo cardíaco, oxígeno en sangre y más de 100 modos deportivos.',
        (select id from public.categories where slug = 'tecnologia'), 349900, 15,
-       array['https://picsum.photos/seed/stocki-smartwatch/600/600'], true),
+       array['https://stocki.site/assets/products/stocki-smartwatch.webp'], true),
       ('Teclado mecánico RGB switch red',
        'Teclado mecánico 60% con switches red, retroiluminación RGB personalizable y keycaps double-shot.',
        (select id from public.categories where slug = 'tecnologia'), 189900, 30,
-       array['https://picsum.photos/seed/stocki-teclado/600/600'], false),
+       array['https://stocki.site/assets/products/stocki-teclado.webp'], false),
       ('Cámara de seguridad WiFi 2K',
        'Cámara IP con visión nocturna, detección de movimiento, audio bidireccional y almacenamiento en la nube o microSD.',
        (select id from public.categories where slug = 'tecnologia'), 159900, 20,
-       array['https://picsum.photos/seed/stocki-camara/600/600'], true),
+       array['https://stocki.site/assets/products/stocki-camara.webp'], true),
       ('Juego de sábanas 300 hilos queen',
        'Juego de sábanas de microfibra premium 300 hilos: ajustable, plana y dos fundas de almohada. Suaves e hipoalergénicas.',
        (select id from public.categories where slug = 'hogar'), 89900, 40,
-       array['https://picsum.photos/seed/stocki-sabanas/600/600'], false),
+       array['https://stocki.site/assets/products/stocki-sabanas.webp'], false),
       ('Licuadora de vaso 1200 W',
        'Licuadora de alta potencia con vaso de vidrio de 1.5 L, 5 velocidades, función pulso y cuchillas de acero inoxidable.',
        (select id from public.categories where slug = 'hogar'), 219900, 12,
-       array['https://picsum.photos/seed/stocki-licuadora/600/600'], true),
+       array['https://stocki.site/assets/products/stocki-licuadora.webp'], true),
       ('Lámpara LED de escritorio táctil',
        'Lámpara de escritorio con 3 temperaturas de color, brillo regulable, puerto USB de carga y brazo plegable.',
        (select id from public.categories where slug = 'hogar'), 59900, 50,
-       array['https://picsum.photos/seed/stocki-lampara/600/600'], false),
+       array['https://stocki.site/assets/products/stocki-lampara.webp'], false),
       ('Organizador de cocina 4 niveles',
        'Estante organizador multiusos de acero con 4 niveles, ideal para especias, frascos y utensilios. Fácil de armar.',
        (select id from public.categories where slug = 'hogar'), 45900, 35,
-       array['https://picsum.photos/seed/stocki-organizador/600/600'], false),
+       array['https://stocki.site/assets/products/stocki-organizador.webp'], false),
       ('Balón de fútbol profesional N.º 5',
        'Balón cosido a máquina tamaño 5, cubierta de PU resistente a la abrasión, cámara de butilo para mejor retención de aire.',
        (select id from public.categories where slug = 'deportes'), 79900, 45,
-       array['https://picsum.photos/seed/stocki-balon/600/600'], false),
+       array['https://stocki.site/assets/products/stocki-balon.webp'], false),
       ('Par de mancuernas recubiertas 10 kg',
        'Mancuernas hexagonales de 5 kg cada una con recubrimiento de neopreno antideslizante. Ideales para entrenar en casa.',
        (select id from public.categories where slug = 'deportes'), 119900, 18,
-       array['https://picsum.photos/seed/stocki-mancuernas/600/600'], true),
+       array['https://stocki.site/assets/products/stocki-mancuernas.webp'], true),
       ('Bicicleta estática plegable',
        'Bicicleta estática con 8 niveles de resistencia magnética, pantalla LCD, sensor de pulso y diseño plegable para ahorrar espacio.',
        (select id from public.categories where slug = 'deportes'), 999900, 8,
-       array['https://picsum.photos/seed/stocki-bicicleta/600/600'], true),
+       array['https://stocki.site/assets/products/stocki-bicicleta.webp'], true),
       ('Colchoneta de yoga antideslizante 6 mm',
        'Mat de yoga de TPE ecológico de 6 mm con doble cara antideslizante y correa de transporte incluida.',
        (select id from public.categories where slug = 'deportes'), 39900, 60,
-       array['https://picsum.photos/seed/stocki-colchoneta/600/600'], false);
+       array['https://stocki.site/assets/products/stocki-colchoneta.webp'], false);
   end if;
 end $$;
+
+-- Las fotos de demostración se alojan en el propio sitio (/assets/products).
+-- Antes apuntaban a picsum.photos, un servicio externo que dejó de responder:
+-- esto corrige las filas que aún guarden esas URL (se puede re-ejecutar).
+update public.products
+set images = array(
+  select regexp_replace(
+           listed.url,
+           '^https://picsum\.photos/seed/((stocki|dropi)-[a-z0-9-]+)/.*$',
+           'https://stocki.site/assets/products/\1.webp')
+  from unnest(images) with ordinality as listed(url, orden)
+  order by listed.orden
+)
+where array_to_string(images, ' ') like '%https://picsum.photos/seed/%';
 
 -- ============================================================
 -- 7. POST-INSTALACIÓN (manual)

@@ -3,7 +3,8 @@
 // acciones de compra; al final carga productos relacionados por categoría.
 import { initLayout } from '../ui/layout.js';
 import { showToast } from '../ui/toast.js';
-import { renderProductGrid, getMainImage } from '../ui/productCard.js';
+import { renderProductGrid } from '../ui/productCard.js';
+import { getProductImages } from '../utils/images.js';
 import { fetchProductById, fetchCatalog } from '../api/products.js';
 import { addToCart } from '../api/cart.js';
 import { qs, qsa, escapeHtml, getQueryParam, setLoading, renderEmptyState } from '../utils/dom.js';
@@ -15,13 +16,6 @@ const RELATED_LIMIT = 6;
 let product = null;
 let quantity = 1;
 
-function getImages(item) {
-  // getMainImage garantiza siempre una imagen (placeholder si no hay ninguna)
-  return Array.isArray(item.images) && item.images.length > 0
-    ? item.images
-    : [getMainImage(item)];
-}
-
 function renderNotFound(container) {
   renderEmptyState(container, {
     title: 'Producto no encontrado',
@@ -31,7 +25,8 @@ function renderNotFound(container) {
 }
 
 function galleryHtml(item) {
-  const images = getImages(item);
+  // Siempre hay al menos una imagen (el respaldo si el producto no tiene fotos)
+  const images = getProductImages(item);
   const thumbsHtml = images.length > 1
     ? `
       <div class="product-gallery__thumbs">
@@ -113,7 +108,7 @@ function initGallery() {
   const mainImage = qs('#gallery-main-image');
   const thumbs = qsa('.product-gallery__thumb');
   if (!mainImage || thumbs.length === 0) return;
-  const images = getImages(product);
+  const images = getProductImages(product);
   thumbs.forEach((thumb) => {
     thumb.addEventListener('click', () => {
       const index = Number(thumb.dataset.index);

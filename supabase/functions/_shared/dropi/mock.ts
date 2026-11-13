@@ -24,6 +24,8 @@ const PAGE_SIZE = 8;
 
 // Catálogo ficticio pero coherente con dropshipping en Colombia:
 // costos mayoristas realistas en COP y stocks variados.
+// Las fotos se alojan en el propio sitio (/assets/products) para no depender
+// de servicios externos de imágenes.
 const MOCK_CATALOG: DropiProduct[] = [
   {
     id: 'dropi-001',
@@ -32,7 +34,7 @@ const MOCK_CATALOG: DropiProduct[] = [
       'Freidora de aire con panel táctil, 8 programas preestablecidos, canasta antiadherente extraíble y apagado automático. Cocina con hasta 85 % menos aceite.',
     cost_price: 145000,
     stock: 32,
-    images: ['https://picsum.photos/seed/dropi-1/600/600'],
+    images: ['https://stocki.site/assets/products/dropi-1.webp'],
     category: 'Hogar',
   },
   {
@@ -42,7 +44,7 @@ const MOCK_CATALOG: DropiProduct[] = [
       'Diadema gamer over-ear con sonido envolvente, micrófono ajustable con cancelación de ruido, almohadillas acolchadas y conector 3.5 mm + USB para la iluminación.',
     cost_price: 62000,
     stock: 58,
-    images: ['https://picsum.photos/seed/dropi-2/600/600'],
+    images: ['https://stocki.site/assets/products/dropi-2.webp'],
     category: 'Tecnología',
   },
   {
@@ -52,7 +54,7 @@ const MOCK_CATALOG: DropiProduct[] = [
       'Mini proyector LED 1080p soportado, conexión WiFi para duplicar pantalla del celular, entrada HDMI/USB y parlante integrado. Ideal para cine en casa.',
     cost_price: 210000,
     stock: 14,
-    images: ['https://picsum.photos/seed/dropi-3/600/600'],
+    images: ['https://stocki.site/assets/products/dropi-3.webp'],
     category: 'Tecnología',
   },
   {
@@ -62,7 +64,8 @@ const MOCK_CATALOG: DropiProduct[] = [
       'Masajeador de cuello y hombros con 3 intensidades, calor infrarrojo y electrodos de pulso. Batería recargable por USB con autonomía de una semana.',
     cost_price: 78000,
     stock: 45,
-    images: ['https://picsum.photos/seed/dropi-4/600/600'],
+    // Sin foto de demostración: la web muestra el respaldo "Sin imagen"
+    images: [],
     category: 'Belleza y salud',
   },
   {
@@ -72,7 +75,7 @@ const MOCK_CATALOG: DropiProduct[] = [
       'Kit profesional de 12 brochas de fibra sintética suave para rostro y ojos, mango de madera y estuche enrollable de viaje.',
     cost_price: 28000,
     stock: 120,
-    images: ['https://picsum.photos/seed/dropi-5/600/600'],
+    images: ['https://stocki.site/assets/products/dropi-5.webp'],
     category: 'Belleza y salud',
   },
   {
@@ -82,7 +85,7 @@ const MOCK_CATALOG: DropiProduct[] = [
       'Cama tipo donut de felpa ultra suave que reduce la ansiedad de perros y gatos. Base antideslizante y funda lavable a máquina. Diámetro 60 cm.',
     cost_price: 54000,
     stock: 60,
-    images: ['https://picsum.photos/seed/dropi-6/600/600'],
+    images: ['https://stocki.site/assets/products/dropi-6.webp'],
     category: 'Mascotas',
   },
   {
@@ -92,7 +95,7 @@ const MOCK_CATALOG: DropiProduct[] = [
       'Bebedero automático con filtro de carbón activado, bomba silenciosa y luz LED indicadora de nivel. Estimula a la mascota a hidratarse mejor.',
     cost_price: 68000,
     stock: 37,
-    images: ['https://picsum.photos/seed/dropi-7/600/600'],
+    images: ['https://stocki.site/assets/products/dropi-7.webp'],
     category: 'Mascotas',
   },
   {
@@ -102,7 +105,7 @@ const MOCK_CATALOG: DropiProduct[] = [
       'Smartwatch con pantalla táctil de 1.7", notificaciones, monitoreo de sueño y ritmo cardíaco, y correas intercambiables. Compatible con Android y iOS.',
     cost_price: 89000,
     stock: 75,
-    images: ['https://picsum.photos/seed/dropi-8/600/600'],
+    images: ['https://stocki.site/assets/products/dropi-8.webp'],
     category: 'Tecnología',
   },
   {
@@ -112,7 +115,7 @@ const MOCK_CATALOG: DropiProduct[] = [
       'Robot aspirador de perfil bajo con 3 modos de limpieza, sensores anticaída, filtro HEPA y base de carga. Ideal para pisos duros y alfombras delgadas.',
     cost_price: 320000,
     stock: 9,
-    images: ['https://picsum.photos/seed/dropi-9/600/600'],
+    images: ['https://stocki.site/assets/products/dropi-9.webp'],
     category: 'Hogar',
   },
   {
@@ -122,7 +125,8 @@ const MOCK_CATALOG: DropiProduct[] = [
       'Faja correctora de espalda con tirantes acolchados y velcro de ajuste, transpirable y discreta bajo la ropa. Tallas S a XL en una sola pieza ajustable.',
     cost_price: 32000,
     stock: 90,
-    images: ['https://picsum.photos/seed/dropi-10/600/600'],
+    // Sin foto de demostración: la web muestra el respaldo "Sin imagen"
+    images: [],
     category: 'Belleza y salud',
   },
   {
@@ -132,7 +136,7 @@ const MOCK_CATALOG: DropiProduct[] = [
       'Set de 5 bandas de látex con distintos niveles de resistencia, agarraderas, tobilleras y anclaje de puerta. Incluye bolso de transporte y guía de ejercicios.',
     cost_price: 24000,
     stock: 150,
-    images: ['https://picsum.photos/seed/dropi-11/600/600'],
+    images: ['https://stocki.site/assets/products/dropi-11.webp'],
     category: 'Deportes',
   },
   {
@@ -142,7 +146,7 @@ const MOCK_CATALOG: DropiProduct[] = [
       'Termo de doble pared al vacío que mantiene bebidas frías 24 h o calientes 12 h. Tapa antigoteo con asa y acabado mate antideslizante.',
     cost_price: 35000,
     stock: 110,
-    images: ['https://picsum.photos/seed/dropi-12/600/600'],
+    images: ['https://stocki.site/assets/products/dropi-12.webp'],
     category: 'Deportes',
   },
 ];

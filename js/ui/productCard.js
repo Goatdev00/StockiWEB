@@ -2,14 +2,7 @@
 // Tarjeta de producto reutilizada en home, búsqueda y listados relacionados.
 import { escapeHtml } from '../utils/dom.js';
 import { formatPrice } from '../utils/format.js';
-
-const PLACEHOLDER_IMAGE = 'https://placehold.co/400x400/EDEDED/999999?text=Sin+imagen';
-
-export function getMainImage(product) {
-  return Array.isArray(product.images) && product.images.length > 0
-    ? product.images[0]
-    : PLACEHOLDER_IMAGE;
-}
+import { getMainImage } from '../utils/images.js';
 
 export function productCardHtml(product) {
   const shippingTag = product.free_shipping

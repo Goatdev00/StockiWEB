@@ -3,6 +3,7 @@
 // pinta el shell, carga categorías, refleja la sesión y mantiene el contador
 // del carrito sincronizado.
 import { escapeHtml, qs } from '../utils/dom.js';
+import { installImageFallback } from '../utils/images.js';
 import { showToast } from './toast.js';
 import { fetchCategories } from '../api/categories.js';
 import { getUser, onAuthChange, signOut } from '../api/auth.js';
@@ -138,6 +139,8 @@ async function renderCategoriesNav() {
 }
 
 export async function initLayout({ searchQuery = '' } = {}) {
+  // Antes de pintar nada: así también cubre las imágenes que se rendericen después
+  installImageFallback();
   renderHeaderShell(searchQuery);
   renderFooter();
   updateCartBadge();

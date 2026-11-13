@@ -5,7 +5,7 @@
 import { initLayout } from '../ui/layout.js';
 import { showToast } from '../ui/toast.js';
 import { confirmModal } from '../ui/modal.js';
-import { getMainImage } from '../ui/productCard.js';
+import { getMainImage } from '../utils/images.js';
 import { getCartItems, updateQuantity, removeFromCart } from '../api/cart.js';
 import { fetchProductsByIds } from '../api/products.js';
 import { getUser } from '../api/auth.js';

@@ -5,7 +5,7 @@
 import { initLayout, requireAuth } from '../ui/layout.js';
 import { showToast } from '../ui/toast.js';
 import { openModal, confirmModal } from '../ui/modal.js';
-import { getMainImage } from '../ui/productCard.js';
+import { getMainImage, resolveImageUrl } from '../utils/images.js';
 import { qs, qsa, escapeHtml, setLoading, renderEmptyState } from '../utils/dom.js';
 import { formatPrice, formatDate, formatOrderStatus } from '../utils/format.js';
 import { fetchMyProducts, createProduct, updateProduct, deleteProduct } from '../api/products.js';
@@ -254,7 +254,7 @@ function openProductModal(product = null) {
       .map(
         (url, index) => `
           <li class="seller-form__preview">
-            <img class="seller-form__preview-img" src="${escapeHtml(url)}" alt="Imagen ${index + 1} del producto" />
+            <img class="seller-form__preview-img" src="${escapeHtml(resolveImageUrl(url))}" alt="Imagen ${index + 1} del producto" />
             <button class="seller-form__preview-remove" type="button" data-index="${index}"
                     aria-label="Quitar imagen ${index + 1}">✕</button>
           </li>`
