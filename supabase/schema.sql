@@ -240,6 +240,11 @@ create trigger on_auth_user_created after insert on auth.users
 
 -- Regla de roles: un usuario solo puede subirse de buyer a seller; los demás
 -- cambios exigen admin, secret key (service role) o el editor SQL del dashboard.
+-- OJO: se compara session_user, NO current_user. Dentro de una función
+-- SECURITY DEFINER current_user es siempre el dueño de la función (postgres),
+-- así que con current_user esta regla dejaba pasar a cualquiera. session_user
+-- es quien abrió la conexión: 'authenticator' para la API, 'postgres' para el
+-- editor SQL.
 create or replace function public.enforce_role_rules()
 returns trigger
 language plpgsql security definer set search_path = public
@@ -247,7 +252,7 @@ as $$
 begin
   if new.role is distinct from old.role then
     if (select auth.role()) = 'service_role'
-       or current_user in ('postgres', 'supabase_admin')
+       or session_user in ('postgres', 'supabase_admin')
        or public.is_admin()
        or (old.role = 'buyer' and new.role = 'seller' and auth.uid() = old.id) then
       return new;
@@ -272,8 +277,9 @@ as $$
 declare
   v_privileged boolean;
 begin
+  -- session_user y no current_user: ver la nota en enforce_role_rules()
   v_privileged := (select auth.role()) = 'service_role'
-                  or current_user in ('postgres', 'supabase_admin')
+                  or session_user in ('postgres', 'supabase_admin')
                   or public.is_admin();
 
   if not v_privileged then
