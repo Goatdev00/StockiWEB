@@ -176,10 +176,14 @@
 }
 
 /* ---------- Navegación de categorías ---------- */
+/* Centradas con márgenes automáticos y no con justify-content: si las
+   categorías no caben (móvil), los márgenes quedan en 0 y la fila se desliza
+   desde la primera; con justify-content las de la izquierda quedarían cortadas. */
 .categories-nav {
   display: flex;
   gap: 10px;
   padding-bottom: 2px;
+  margin-inline: auto;
 }
 
 /* Chips tipo píldora, como los accesos de categoría de la referencia */
