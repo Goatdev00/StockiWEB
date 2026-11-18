@@ -48,27 +48,29 @@ function renderHeaderShell(searchQuery) {
   const header = qs('#app-header');
   if (!header) return;
   header.innerHTML = `
-    <div class="header__top container">
-      <a class="header__logo" href="./index.html" aria-label="Stocki, ir al inicio">
-        <span class="logo">st<span class="logo__o" aria-hidden="true"></span>cki</span>
-        <span class="logo__tagline">store</span>
-      </a>
-      <form class="search-form" id="search-form" role="search" action="./search.html" method="get">
-        <label class="visually-hidden" for="search-input">Buscar productos</label>
-        <input class="search-form__input" id="search-input" type="search" name="q"
-               placeholder="Buscar productos, marcas y más…" value="${escapeHtml(searchQuery)}" />
-        <button class="search-form__button" type="submit" aria-label="Buscar">${SEARCH_ICON}</button>
-      </form>
-      <nav class="header__nav" aria-label="Cuenta y carrito">
-        <span id="header-session-links"></span>
-        <a class="header__cart" href="./cart.html" aria-label="Ver carrito">
-          ${CART_ICON}
-          <span class="header__cart-badge header__cart-badge--empty" id="cart-badge"></span>
+    <div class="header__inner container">
+      <div class="header__top">
+        <a class="header__logo" href="./index.html" aria-label="Stocki, ir al inicio">
+          <span class="logo">st<span class="logo__o" aria-hidden="true"></span>cki</span>
+          <span class="logo__tagline">store</span>
         </a>
-      </nav>
-    </div>
-    <div class="header__bottom container">
-      <nav class="categories-nav" id="categories-nav" aria-label="Categorías"></nav>
+        <form class="search-form" id="search-form" role="search" action="./search.html" method="get">
+          <label class="visually-hidden" for="search-input">Buscar productos</label>
+          <input class="search-form__input" id="search-input" type="search" name="q"
+                 placeholder="Buscar productos, marcas y más…" value="${escapeHtml(searchQuery)}" />
+          <button class="search-form__button" type="submit" aria-label="Buscar">${SEARCH_ICON}</button>
+        </form>
+        <nav class="header__nav" aria-label="Cuenta y carrito">
+          <span id="header-session-links"></span>
+          <a class="header__cart" href="./cart.html" aria-label="Ver carrito">
+            ${CART_ICON}
+            <span class="header__cart-badge header__cart-badge--empty" id="cart-badge"></span>
+          </a>
+        </nav>
+      </div>
+      <div class="header__bottom">
+        <nav class="categories-nav" id="categories-nav" aria-label="Categorías"></nav>
+      </div>
     </div>`;
 }
 

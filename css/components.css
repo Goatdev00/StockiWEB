@@ -133,13 +133,48 @@
   display: none;
 }
 
+/* Los 16px son el margen lateral de .container: la fila lo ocupa para que,
+   si las categorías no caben, se deslicen hasta el borde de la pantalla. */
 .header__bottom {
   display: flex;
   align-items: center;
-  gap: 18px;
-  padding-top: 4px;
-  padding-bottom: 8px;
+  margin-inline: -16px;
+  padding: 4px 16px 8px;
   overflow-x: auto;
+}
+
+/* Escritorio: las dos filas comparten las columnas logo | buscador | cuenta,
+   así las categorías se centran bajo el buscador y no respecto a la página
+   (los enlaces de cuenta son más anchos que el logo y lo desplazan del centro).
+   Por debajo de 768px el header se reparte en varias filas y las categorías
+   se quedan centradas en la pantalla. */
+@supports (grid-template-columns: subgrid) {
+  @media (min-width: 768px) {
+    .header__inner {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      column-gap: 16px;
+    }
+
+    .header__top,
+    .header__bottom {
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: subgrid;
+    }
+
+    .header__bottom {
+      margin-inline: 0;
+      padding-inline: 0;
+    }
+
+    /* Si no caben bajo el buscador, los márgenes automáticos quedan en 0:
+       arrancan en su borde izquierdo y siguen hacia la derecha. */
+    .categories-nav {
+      grid-column: 2;
+      width: max-content;
+    }
+  }
 }
 
 /* ---------- Buscador ---------- */
